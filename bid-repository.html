@@ -132,6 +132,20 @@
   tfoot td{background:#1B3A8F; color:#fff; padding:.42rem .6rem; font-weight:500;}
   .caption{font-family:var(--mono); font-size:.7rem; color:var(--muted); margin:0 0 3rem; max-width:70ch;}
 
+  .code{
+    background:#1B1D21; margin:1.5rem 0 .75rem; overflow-x:auto;
+    border-left:3px solid var(--accent);
+  }
+  .code pre{margin:0; padding:1.15rem 1.35rem;}
+  .code code{
+    font-family:var(--mono); font-size:.72rem; line-height:1.65;
+    color:#E8E7E3; white-space:pre;
+  }
+  .code .c{color:#7C8088;}
+  .code .s{color:#9FBF8C;}
+  .code .k{color:#8AA2F0;}
+  .code .f{color:#E3C88A;}
+
   footer{
     border-top:2px solid var(--ink); margin:4rem 0 0; padding:1rem 0 4rem;
     font-family:var(--mono); font-size:.72rem; color:var(--muted);
@@ -189,7 +203,47 @@
   <h2>The hard part</h2>
   <p>Not the dashboard. The parsing. No two bid templates agreed on what to call an origin city, and the header row was rarely the first row &mdash; most files open with a title block, a logo, and a blank line. A script that assumes <span style="font-family:var(--mono);font-size:.85em">header=0</span> silently produces garbage across thousands of sheets.</p>
   <p>So the pipeline scans the first ten rows of every sheet, scores each one for how many recognizable column spellings it contains, and treats the best-scoring row as the header. Column spellings live in a lookup table rather than in the logic, which is what let the thing survive contact with bid formats it had never seen. Sheets that can&rsquo;t be matched are reported rather than silently dropped &mdash; a quiet failure in a consolidation script is worse than a loud one.</p>
-  <p>The consolidation code is public, with a generator that produces deliberately messy synthetic bid files so anyone can run it: <a href="https://github.com/YOURHANDLE/YOURHANDLE.github.io/tree/main/bid-consolidator">bid-consolidator</a>.</p>
+  <p>The core of the parser, which is the piece the whole project rested on:</p>
+
+  <div class="code">
+<pre><code><span class="c"># Canonical field -&gt; the header spellings seen in the wild.</span>
+SCHEMA = {
+    <span class="s">"origin_city"</span>:  [<span class="s">"origin city"</span>, <span class="s">"org city"</span>, <span class="s">"city (origin)"</span>],
+    <span class="s">"origin_state"</span>: [<span class="s">"origin state"</span>, <span class="s">"org state"</span>, <span class="s">"origin st"</span>],
+    <span class="s">"origin_zip"</span>:   [<span class="s">"origin zip"</span>, <span class="s">"org zip"</span>, <span class="s">"origin postal code"</span>],
+    <span class="s">"dest_city"</span>:    [<span class="s">"destination city"</span>, <span class="s">"dest city"</span>, <span class="s">"dst city"</span>],
+    <span class="s">"dest_state"</span>:   [<span class="s">"dest state"</span>, <span class="s">"destination_state"</span>, <span class="s">"dst state"</span>],
+    <span class="s">"dest_zip"</span>:     [<span class="s">"dest zip"</span>, <span class="s">"destination_zip"</span>, <span class="s">"dst zip"</span>],
+}
+
+
+<span class="k">def</span> <span class="f">find_header_row</span>(frame):
+    <span class="s">"""Return the index of the row that looks most like a header, or None.
+
+    A row qualifies when it contains recognizable spellings for at least
+    half the canonical fields. Scanning beats assuming header=0: these
+    workbooks routinely open with a title, a logo row, and a blank line.
+    """</span>
+    best_index, best_score = <span class="k">None</span>, 0
+    <span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="f">min</span>(10, <span class="f">len</span>(frame))):
+        cells = {<span class="f">str</span>(v).<span class="f">strip</span>().<span class="f">lower</span>() <span class="k">for</span> v <span class="k">in</span> frame.iloc[i].values}
+        score = <span class="f">sum</span>(1 <span class="k">for</span> spellings <span class="k">in</span> SCHEMA.<span class="f">values</span>()
+                    <span class="k">if</span> cells &amp; <span class="f">set</span>(spellings))
+        <span class="k">if</span> score &gt; best_score:
+            best_index, best_score = i, score
+    <span class="k">return</span> best_index <span class="k">if</span> best_score &gt;= <span class="f">len</span>(SCHEMA) / 2 <span class="k">else</span> <span class="k">None</span>
+
+
+<span class="k">def</span> <span class="f">extract_sheet</span>(frame):
+    <span class="s">"""Project one sheet onto the canonical schema, filling absent fields."""</span>
+    lookup = {<span class="f">str</span>(c).<span class="f">strip</span>().<span class="f">lower</span>(): c <span class="k">for</span> c <span class="k">in</span> frame.columns}
+    out = pd.<span class="f">DataFrame</span>(index=frame.index)
+    <span class="k">for</span> field, spellings <span class="k">in</span> SCHEMA.<span class="f">items</span>():
+        match = <span class="f">next</span>((lookup[s] <span class="k">for</span> s <span class="k">in</span> spellings <span class="k">if</span> s <span class="k">in</span> lookup), <span class="k">None</span>)
+        out[field] = frame[match] <span class="k">if</span> match <span class="k">else</span> pd.NA
+    <span class="k">return</span> out</code></pre>
+  </div>
+  <p class="caption">Python 3 with pandas. The full script walks a directory, tags every row with its source file and sheet, and reports unmatched sheets on stderr rather than dropping them silently.</p>
 
   <h2>What reps got</h2>
   <p>Three views, because reps ask three different questions. Rebuilt below with invented data &mdash; the layout and the interaction are what the real thing did.</p>
