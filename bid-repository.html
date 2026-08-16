@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Searchable bid file repository — Caden Hill</title>
+<meta name="description" content="Case study: turning 55 GB of unsearchable freight bid files into a lane-level Power BI repository the sales team could actually query.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#EEEDE8; --paper-2:#E4E3DC; --ink:#17181A; --muted:#6B6D70;
+    --rule:#D3D1C9; --accent:#2440E8;
+    --display:"Bricolage Grotesque",system-ui,sans-serif;
+    --body:"Newsreader",Georgia,serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--body); font-size:clamp(1rem,.95rem + .2vw,1.1rem);
+    line-height:1.62; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+
+  .notice{
+    background:#111; color:#fff; font-family:var(--mono);
+    font-size:.74rem; line-height:1.6; padding:11px 20px; text-align:center;
+  }
+  .notice strong{color:#fff;}
+
+  .wrap{max-width:820px; margin:0 auto; padding:0 clamp(1.25rem,5vw,2rem);}
+
+  .back{
+    display:inline-block; font-family:var(--mono); font-size:.75rem;
+    text-decoration:none; color:var(--muted); margin:2.5rem 0 3rem;
+  }
+  .back:hover{color:var(--accent);}
+
+  .eyebrow{
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 1rem;
+  }
+  h1{
+    font-family:var(--display); font-weight:800;
+    font-size:clamp(2.1rem,1.6rem + 2.4vw,3.2rem); line-height:1;
+    letter-spacing:-.03em; margin:0 0 1.25rem;
+  }
+  .dek{
+    font-size:clamp(1.1rem,1rem + .5vw,1.35rem); line-height:1.45;
+    max-width:44ch; margin:0 0 2.5rem;
+  }
+
+  .spec{
+    font-family:var(--mono); font-size:.76rem; background:var(--paper-2);
+    padding:1.1rem 1.25rem; margin:0 0 3.5rem;
+  }
+  .spec dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:.5rem 1.25rem;}
+  .spec dt{color:var(--muted);}
+  .spec dd{margin:0;}
+
+  h2{
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); font-weight:500;
+    border-top:2px solid var(--ink); padding-top:.6rem;
+    margin:3.5rem 0 1.5rem;
+  }
+  h3{
+    font-family:var(--display); font-weight:600;
+    font-size:1.3rem; letter-spacing:-.01em; margin:2rem 0 .6rem;
+  }
+  p{margin:0 0 1.1rem; max-width:64ch;}
+  .pull{
+    font-family:var(--display); font-weight:600; font-size:1.35rem;
+    line-height:1.3; letter-spacing:-.015em; max-width:26ch;
+    border-left:3px solid var(--accent); padding-left:1.1rem;
+    margin:2.5rem 0;
+  }
+
+  /* process sequence — order carries meaning here */
+  ol.process{
+    list-style:none; counter-reset:step; margin:0 0 1rem; padding:0;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1px;
+    background:var(--rule); border:1px solid var(--rule);
+  }
+  ol.process li{
+    counter-increment:step; background:var(--paper); padding:1rem 1.1rem;
+  }
+  ol.process li::before{
+    content:counter(step,decimal-leading-zero);
+    display:block; font-family:var(--mono); font-size:.7rem;
+    color:var(--accent); margin-bottom:.35rem;
+  }
+  ol.process b{font-family:var(--display); font-weight:600; font-size:1.02rem;}
+  ol.process span{display:block; font-size:.92rem; color:var(--muted); margin-top:.2rem;}
+
+  /* flow */
+  .flow{
+    display:flex; flex-wrap:wrap; align-items:center; gap:.5rem;
+    font-family:var(--mono); font-size:.74rem; margin:1.5rem 0 1rem;
+  }
+  .flow i{font-style:normal; border:1px solid var(--rule); padding:.45rem .7rem; background:var(--paper-2);}
+  .flow em{font-style:normal; color:var(--accent);}
+
+  /* dashboard recreation */
+  .demo{border:1px solid var(--rule); background:#fff; margin:1.5rem 0 .75rem; overflow:hidden;}
+  .demo-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    background:#F6F6F4; border-bottom:1px solid var(--rule); padding:.6rem .9rem;
+    font-family:var(--mono); font-size:.7rem; color:var(--muted);
+  }
+  .demo-bar b{font-family:var(--display); font-size:.95rem; color:#1B3A8F; letter-spacing:-.01em;}
+  .tabs{display:flex; gap:0; border-bottom:1px solid var(--rule); flex-wrap:wrap;}
+  .tabs button{
+    font-family:var(--mono); font-size:.72rem; background:none; border:none;
+    border-bottom:2px solid transparent; padding:.65rem .95rem; cursor:pointer; color:var(--muted);
+  }
+  .tabs button[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--accent);}
+  .demo-body{padding:.9rem; overflow-x:auto;}
+  table{border-collapse:collapse; width:100%; font-family:var(--mono); font-size:.7rem; min-width:560px;}
+  thead th{
+    background:#1B3A8F; color:#fff; text-align:left; font-weight:500;
+    padding:.45rem .6rem; white-space:nowrap;
+  }
+  tbody td{padding:.38rem .6rem; border-bottom:1px solid #EEE; white-space:nowrap;}
+  tbody tr:nth-child(even){background:#F7F8FB;}
+  td.num, th.num{text-align:right;}
+  tfoot td{background:#1B3A8F; color:#fff; padding:.42rem .6rem; font-weight:500;}
+  .caption{font-family:var(--mono); font-size:.7rem; color:var(--muted); margin:0 0 3rem; max-width:70ch;}
+
+  footer{
+    border-top:2px solid var(--ink); margin:4rem 0 0; padding:1rem 0 4rem;
+    font-family:var(--mono); font-size:.72rem; color:var(--muted);
+    display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; justify-content:space-between;
+  }
+  footer a{text-decoration:none;}
+  footer a:hover{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="notice">
+  <strong>Recreation with synthetic data.</strong>
+  The dashboard below was rebuilt from scratch for this portfolio. Every customer, carrier,
+  lane and figure is invented. No data, screenshot or file from the company appears on this page.
+</div>
+
+<div class="wrap">
+
+  <a class="back" href="index.html">&larr; Caden Hill</a>
+
+  <p class="eyebrow">Work sample &mdash; operations internship, summer 2025</p>
+  <h1>A searchable bid file repository</h1>
+  <p class="dek">Five years of freight bid files sat in 55 GB of spreadsheets nobody could search. The sales team was quoting new business blind.</p>
+
+  <div class="spec">
+    <dl>
+      <dt>Role</dt><dd>Operations intern &mdash; sales &amp; logistics</dd>
+      <dt>Tools</dt><dd>Python, Power Query, Power BI, Excel</dd>
+      <dt>Timeline</dt><dd>May &ndash; August 2025, capstone project</dd>
+      <dt>Output</dt><dd>Lane-level repository + carrier bid automation</dd>
+      <dt>Audience</dt><dd>Sales reps, pricing, senior leadership</dd>
+    </dl>
+  </div>
+
+  <h2>The problem</h2>
+  <p>Every customer bid arrives as its own workbook. Different customer, different template, different column names, different number of header rows before the data starts. Once a bid is won or lost the file goes into a folder and is effectively gone.</p>
+  <p>That is fine until a rep is on a call and wants to know whether the company has ever run a lane before &mdash; and at what volume. Answering meant opening files one at a time and hoping. In practice it meant guessing.</p>
+
+  <p class="pull">55 GB is roughly 11 million printed pages. The data existed. It just wasn&rsquo;t reachable.</p>
+
+  <h2>How I worked it</h2>
+  <ol class="process">
+    <li><b>Scope</b><span>Talked to reps about the questions they actually needed answered on a call.</span></li>
+    <li><b>Brainstorm</b><span>Mapped what a usable answer looks like: lane, customer, volume, miles, year.</span></li>
+    <li><b>Solutions</b><span>Chose a parse-and-normalize pipeline over asking anyone to change how they file bids.</span></li>
+    <li><b>Data cleanup</b><span>Header detection, column mapping, deduplication across inconsistent templates.</span></li>
+    <li><b>Report</b><span>Built the Power BI model and the three views reps would use.</span></li>
+    <li><b>Testing</b><span>Sat with reps, watched them fail to find things, fixed the views.</span></li>
+    <li><b>Presenting</b><span>Walked leadership through it as my end-of-internship capstone.</span></li>
+    <li><b>Handoff</b><span>Documented the pipeline so new bid files could be folded in after I left.</span></li>
+  </ol>
+  <p class="caption">The order matters here &mdash; steps four and six are where the project was actually won or lost.</p>
+
+  <h2>The hard part</h2>
+  <p>Not the dashboard. The parsing. No two bid templates agreed on what to call an origin city, and the header row was rarely the first row &mdash; most files open with a title block, a logo, and a blank line. A script that assumes <span style="font-family:var(--mono);font-size:.85em">header=0</span> silently produces garbage across thousands of sheets.</p>
+  <p>So the pipeline scans the first ten rows of every sheet, scores each one for how many recognizable column spellings it contains, and treats the best-scoring row as the header. Column spellings live in a lookup table rather than in the logic, which is what let the thing survive contact with bid formats it had never seen. Sheets that can&rsquo;t be matched are reported rather than silently dropped &mdash; a quiet failure in a consolidation script is worse than a loud one.</p>
+  <p>The consolidation code is public, with a generator that produces deliberately messy synthetic bid files so anyone can run it: <a href="https://github.com/YOURHANDLE/YOURHANDLE.github.io/tree/main/bid-consolidator">bid-consolidator</a>.</p>
+
+  <h2>What reps got</h2>
+  <p>Three views, because reps ask three different questions. Rebuilt below with invented data &mdash; the layout and the interaction are what the real thing did.</p>
+
+  <div class="demo">
+    <div class="demo-bar">
+      <b>Lane History</b>
+      <span>recreation &middot; synthetic data</span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-view="market">By market</button>
+      <button role="tab" aria-selected="false" data-view="lane">Lane lookup</button>
+      <button role="tab" aria-selected="false" data-view="customer">Customer lookup</button>
+    </div>
+    <div class="demo-body">
+      <table id="grid">
+        <thead></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
+  </div>
+  <p class="caption">Reps filter by origin and destination market; pricing works from the customer roll-up; leadership looks at the totals. Same model underneath all three.</p>
+
+  <h3>Why three views and not one</h3>
+  <p>The first version was a single table with every field and a pile of slicers, which tested badly &mdash; people could not find the thing they came for. Splitting it by question rather than by data structure is the change that made it get used.</p>
+
+  <h2>The second piece</h2>
+  <p>Once bid history was queryable, the same pattern extended forward: incoming carrier bids now file themselves into a report that pricing and senior leadership use for carrier selection.</p>
+  <div class="flow">
+    <i>Bid template</i><em>&rarr;</em><i>Email to carriers</i><em>&rarr;</em><i>Power Query</i><em>&rarr;</em><i>Normalize</i><em>&rarr;</em><i>Award</i><em>&rarr;</em><i>Repository</i>
+  </div>
+  <p class="caption">The template is the leverage: standardizing what comes back is cheaper than parsing whatever arrives.</p>
+
+  <h2>What I took from it</h2>
+  <p>Two things. First, the value was in the cleanup, not the visualization &mdash; the dashboard was a week and the parsing was the rest of the summer, and only one of those was the actual problem. Second, a tool nobody can navigate is a tool nobody uses, and you find that out by watching someone try, not by asking them if it looks good.</p>
+
+  <h2>A note on the data</h2>
+  <p>The bid files belong to a former employer, so nothing from them appears here. The dashboard above is a rebuild populated with invented customers, lanes and volumes; the public repository generates its own synthetic test data. What is on this page is the reasoning and the method, which are mine to show.</p>
+
+  <footer>
+    <span>&copy; 2026 Caden Hill</span>
+    <span><a href="index.html">Back to portfolio</a></span>
+  </footer>
+</div>
+
+<script>
+const DATA = {
+  market: {
+    cols: ["Customer", "O-Market", "O-City, State", "D-Market", "D-City, State", "Miles", "Volume", "Year"],
+    num: [5, 6, 7],
+    rows: [
+      ["Northwind Foods", "Chicago, IL", "Elgin, IL", "Jacksonville, FL", "Jacksonville, FL", "1,058", "292", "2021"],
+      ["Harbor Home Supply", "Chicago, IL", "Joliet, IL", "Jacksonville, FL", "Jacksonville, FL", "1,052", "271", "2021"],
+      ["Redline Beverage", "Chicago, IL", "Chicago, IL", "Jacksonville, FL", "Gainesville, FL", "1,076", "244", "2020"],
+      ["Summit Paper Co", "Chicago, IL", "Aurora, IL", "Jacksonville, FL", "Jacksonville, FL", "1,081", "198", "2021"],
+      ["Lakeshore Dairy", "Chicago, IL", "Naperville, IL", "Jacksonville, FL", "Alachua, FL", "1,044", "163", "2019"],
+      ["Fairview Brands", "Chicago, IL", "Chicago, IL", "Jacksonville, FL", "Jacksonville, FL", "1,067", "121", "2021"],
+      ["Ironwood Retail", "Chicago, IL", "Cicero, IL", "Jacksonville, FL", "Gainesville, FL", "1,090", "94", "2018"],
+      ["Cascade Grocers", "Chicago, IL", "Bolingbrook, IL", "Jacksonville, FL", "Jacksonville, FL", "1,072", "78", "2020"]
+    ],
+    foot: ["Total", "", "", "", "", "48,206", "1,461", ""]
+  },
+  lane: {
+    cols: ["Lane", "Lane count", "Volume", "Miles"],
+    num: [1, 2, 3],
+    rows: [
+      ["Aurora, IL &rarr; Jacksonville, FL", "6", "412", "6,486"],
+      ["Bolingbrook, IL &rarr; Gainesville, FL", "4", "188", "4,288"],
+      ["Chicago, IL &rarr; Alachua, FL", "3", "141", "3,132"],
+      ["Cicero, IL &rarr; Jacksonville, FL", "3", "97", "3,270"],
+      ["Elgin, IL &rarr; Jacksonville, FL", "5", "292", "5,290"],
+      ["Joliet, IL &rarr; Jacksonville, FL", "2", "271", "2,104"],
+      ["Naperville, IL &rarr; Gainesville, FL", "2", "163", "2,088"],
+      ["Waukegan, IL &rarr; Ocala, FL", "1", "34", "1,112"]
+    ],
+    foot: ["Total", "26", "1,598", "27,770"]
+  },
+  customer: {
+    cols: ["Customer", "Lane count", "Volume", "Miles"],
+    num: [1, 2, 3],
+    rows: [
+      ["Harbor Home Supply", "4,061", "182,318", "4,203,364"],
+      ["Northwind Foods", "3,092", "155,855", "3,882,960"],
+      ["Redline Beverage", "2,078", "141,096", "2,926,763"],
+      ["Ironwood Retail", "1,719", "92,617", "2,372,795"],
+      ["Cascade Grocers", "1,614", "94,878", "1,953,868"],
+      ["Summit Paper Co", "1,163", "88,052", "1,325,059"],
+      ["Fairview Brands", "1,045", "77,134", "1,479,359"],
+      ["Lakeshore Dairy", "802", "71,159", "946,296"]
+    ],
+    foot: ["Total", "15,574", "903,109", "19,090,464"]
+  }
+};
+
+const grid = document.getElementById("grid");
+
+function render(view) {
+  const d = DATA[view];
+  grid.tHead.innerHTML = "<tr>" + d.cols
+    .map((c, i) => `<th class="${d.num.includes(i) ? "num" : ""}">${c}</th>`).join("") + "</tr>";
+  grid.tBodies[0].innerHTML = d.rows
+    .map(r => "<tr>" + r.map((c, i) => `<td class="${d.num.includes(i) ? "num" : ""}">${c}</td>`).join("") + "</tr>")
+    .join("");
+  grid.tFoot.innerHTML = "<tr>" + d.foot
+    .map((c, i) => `<td class="${d.num.includes(i) ? "num" : ""}">${c}</td>`).join("") + "</tr>";
+}
+
+document.querySelectorAll(".tabs button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tabs button")
+      .forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+    render(btn.dataset.view);
+  });
+});
+
+render("market");
+</script>
+
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caden Hill — Supply Chain &amp; Sourcing Analytics</title>
+<meta name="description" content="Portfolio of Caden Hill: sourcing analytics, spend analysis, and supply chain data projects. B.S. Finance &amp; Supply Chain Management, University of Kansas, 2027.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#EEEDE8;
+    --paper-2:#E4E3DC;
+    --ink:#17181A;
+    --muted:#6B6D70;
+    --rule:#D3D1C9;
+    --accent:#2440E8;
+
+    --display:"Bricolage Grotesque", system-ui, sans-serif;
+    --body:"Newsreader", Georgia, serif;
+    --mono:"JetBrains Mono", ui-monospace, monospace;
+
+    --gap:clamp(1.5rem, 4vw, 4rem);
+    --maxw:1280px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;}
+
+  :focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+
+  .skip{
+    position:absolute; left:-9999px; top:0;
+    background:var(--ink); color:var(--paper);
+    padding:.6rem 1rem; z-index:50;
+    font-family:var(--mono); font-size:.8rem;
+  }
+  .skip:focus{left:0;}
+
+  .wrap{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gap);
+    display:grid;
+    grid-template-columns:1fr;
+    gap:var(--gap);
+  }
+
+  /* ---------- identity panel ---------- */
+
+  .id-panel{padding:clamp(2.5rem,6vw,5rem) 0 1rem;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:.7rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 1.25rem;
+  }
+
+  .name{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:clamp(2.8rem, 7vw, 4rem);
+    line-height:.92;
+    letter-spacing:-.03em;
+    margin:0 0 1rem;
+  }
+
+  .thesis{
+    font-size:1.05rem;
+    max-width:34ch;
+    margin:0 0 1.75rem;
+  }
+  .thesis em{color:var(--accent); font-style:normal; font-weight:500;}
+
+  .contact-list{
+    list-style:none;
+    margin:0 0 2rem;
+    padding:0;
+    font-family:var(--mono);
+    font-size:.82rem;
+  }
+  .contact-list li{border-top:1px solid var(--rule); padding:.55rem 0;}
+  .contact-list li:last-child{border-bottom:1px solid var(--rule);}
+  .contact-list a{
+    text-decoration:none;
+    display:flex;
+    justify-content:space-between;
+    gap:1rem;
+    align-items:baseline;
+  }
+  .contact-list a span{color:var(--muted);}
+  .contact-list a:hover span,
+  .contact-list a:focus-visible span{color:var(--accent);}
+
+  .jump{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem .5rem;
+    font-family:var(--mono);
+    font-size:.75rem;
+  }
+  .jump a{
+    text-decoration:none;
+    border:1px solid var(--rule);
+    border-radius:999px;
+    padding:.3rem .8rem;
+    color:var(--muted);
+    transition:border-color .18s ease, color .18s ease;
+  }
+  .jump a:hover, .jump a:focus-visible{color:var(--accent); border-color:var(--accent);}
+
+  /* ---------- main ---------- */
+
+  main{padding-bottom:clamp(4rem,10vw,8rem);}
+
+  .section{padding:clamp(2.5rem,6vw,4.5rem) 0 0;}
+
+  .section-label{
+    font-family:var(--mono);
+    font-size:.7rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+    border-top:2px solid var(--ink);
+    padding-top:.6rem;
+    margin:0 0 1.75rem;
+  }
+
+  .lede{
+    font-size:clamp(1.15rem,1.05rem + .5vw,1.45rem);
+    line-height:1.45;
+    max-width:56ch;
+    margin:0 0 1.25rem;
+  }
+
+  .prose{max-width:60ch;}
+  .prose p{margin:0 0 1rem;}
+
+  /* ---------- work ---------- */
+
+  .work{
+    border-top:1px solid var(--rule);
+    padding:2rem 0;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:1.5rem;
+    transition:border-color .2s ease;
+  }
+  .work:hover{border-top-color:var(--accent);}
+  .work:last-of-type{border-bottom:1px solid var(--rule);}
+
+  .work-head h3{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:clamp(1.5rem,1.2rem + 1vw,2rem);
+    line-height:1.05;
+    letter-spacing:-.02em;
+    margin:0 0 .6rem;
+  }
+  .work-kind{
+    font-family:var(--mono);
+    font-size:.7rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 .75rem;
+  }
+  .work-head p{margin:0 0 1.1rem; max-width:54ch;}
+
+  .work-link{
+    font-family:var(--mono);
+    font-size:.8rem;
+    text-decoration:none;
+    border-bottom:2px solid var(--accent);
+    padding-bottom:2px;
+  }
+  .work-link:hover, .work-link:focus-visible{color:var(--accent);}
+
+  .spec{
+    font-family:var(--mono);
+    font-size:.76rem;
+    line-height:1.5;
+    background:var(--paper-2);
+    padding:1rem 1.1rem;
+    align-self:start;
+  }
+  .spec dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:.45rem .9rem;}
+  .spec dt{color:var(--muted); letter-spacing:.04em;}
+  .spec dd{margin:0;}
+
+  /* ---------- skills ---------- */
+
+  .skill-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:1.5rem;
+  }
+  .skill-grid h3{
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 .5rem;
+    font-weight:500;
+  }
+  .skill-grid ul{margin:0; padding-left:1.1rem;}
+  .skill-grid li{margin-bottom:.25rem;}
+
+  /* ---------- footer ---------- */
+
+  footer{
+    border-top:2px solid var(--ink);
+    margin-top:clamp(3rem,8vw,6rem);
+    padding-top:1rem;
+    font-family:var(--mono);
+    font-size:.72rem;
+    color:var(--muted);
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem 1.5rem;
+    justify-content:space-between;
+  }
+
+  /* ---------- reveal ---------- */
+
+  .reveal{opacity:0; transform:translateY(14px);}
+  .reveal.in{opacity:1; transform:none; transition:opacity .5s ease, transform .5s ease;}
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+  }
+
+  /* ---------- desktop ---------- */
+
+  @media (min-width:900px){
+    .wrap{grid-template-columns:minmax(260px,340px) 1fr; gap:clamp(2.5rem,5vw,5rem);}
+    .id-panel{
+      position:sticky;
+      top:0;
+      align-self:start;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      padding:3rem 0;
+    }
+    .work{grid-template-columns:1fr 250px; gap:2rem;}
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="wrap">
+
+  <header class="id-panel">
+    <p class="eyebrow">Sourcing &amp; supply chain analytics</p>
+    <h1 class="name">Caden<br>Hill</h1>
+    <p class="thesis">I turn messy spend and logistics data into decisions teams actually make. Finance and <em>supply chain management</em> at the University of Kansas, class of 2027.</p>
+
+    <ul class="contact-list">
+      <li><a href="mailto:cadenhill072@gmail.com">Email <span>cadenhill072@gmail.com</span></a></li>
+      <li><a href="https://www.linkedin.com/in/cadenhill" target="_blank" rel="noopener">LinkedIn <span>/in/cadenhill</span></a></li>
+      <li><a href="https://github.com/YOURHANDLE" target="_blank" rel="noopener">GitHub <span>/YOURHANDLE</span></a></li>
+    </ul>
+
+    <nav class="jump" aria-label="Sections">
+      <a href="#about">About</a>
+      <a href="#work">Work</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- ABOUT -->
+    <section class="section reveal" id="about">
+      <h2 class="section-label">About</h2>
+      <p class="lede">The problems I like best are the ones where the data is a mess and the stakes are concrete: a packaging category nobody has looked at in years, or five years of bid files nobody can search.</p>
+      <div class="prose">
+        <p>I am a junior at the University of Kansas studying finance and supply chain management with a minor in data analytics, graduating in May 2027. Most of what I know how to do I learned by being handed a pile of unstructured data and a question somebody actually needed answered.</p>
+        <p>Summer 2026 I was a sourcing analyst intern on the packaging direct materials team at General Mills, working on film and flexible/laminate categories. The summer before that I was an operations intern at TA Dedicated, a dedicated freight carrier, building reporting tools for the sales and pricing teams. During the school year I am the head teaching assistant for SCM 310, KU's core supply chain course, where I coordinate the TA team and act as the bridge between the instructor and about 200 students. I also joined the leadership team of KU's Supply Chain Management Club for 2026&ndash;27.</p>
+        <p>My toolkit is Power BI, Python, and Excel for the analysis, plus spend analysis and supplier management on the sourcing side. I am currently looking for full-time procurement, sourcing, and supply chain analytics roles starting after graduation.</p>
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section class="section reveal" id="work">
+      <h2 class="section-label">Selected work</h2>
+
+      <article class="work">
+        <div class="work-head">
+          <p class="work-kind">Internship case study</p>
+          <h3>Packaging spend intelligence tool</h3>
+          <p>Sourcing and R&amp;D teams evaluating a packaging category had to pull spend from one system, technical drawings from another, and material specs from a third. I built a web-based tool using enterprise generative AI that brings all three into a single interface, so a question like "what are we paying across suppliers for this laminate structure" gets answered in one place instead of five. The linked demo is the real tool with every employer, supplier, material and brand identifier replaced and all dollar values scaled &mdash; the structure and logic are intact, the proprietary data is not.</p>
+          <a class="work-link" href="spend-playbook-demo.html">Open the sanitized demo &rarr;</a>
+        </div>
+        <div class="spec">
+          <dl>
+            <dt>Context</dt><dd>General Mills</dd>
+            <dt>Role</dt><dd>Sourcing Analyst Intern</dd>
+            <dt>Tools</dt><dd>Enterprise gen AI, Excel, spend analytics</dd>
+            <dt>Timeline</dt><dd>May &ndash; Jul 2026</dd>
+            <dt>Outcome</dt><dd>Adopted by sourcing and R&amp;D</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="work">
+        <div class="work-head">
+          <p class="work-kind">Python &middot; Power BI</p>
+          <h3>Searchable carrier bid repository</h3>
+          <p>A freight carrier's five years of customer bid files sat in 55 GB of spreadsheets that nobody could search, so the sales team was quoting new business blind. I wrote a Python pipeline to parse and normalize the files into a single structured dataset and surfaced it through Power BI, giving reps lane-level history at the point of the conversation. I later extended the same pattern to file incoming carrier bids automatically for pricing review. The case study rebuilds the dashboard with invented data and links to the parsing code, which ships with a generator for its own synthetic bid files.</p>
+          <a class="work-link" href="bid-repository.html">Read the case study &rarr;</a>
+        </div>
+        <div class="spec">
+          <dl>
+            <dt>Context</dt><dd>TA Dedicated</dd>
+            <dt>Role</dt><dd>Operations Intern</dd>
+            <dt>Tools</dt><dd>Python, Power BI, Excel</dd>
+            <dt>Timeline</dt><dd>May &ndash; Aug 2025</dd>
+            <dt>Outcome</dt><dd>55 GB made searchable</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="work">
+        <div class="work-head">
+          <p class="work-kind">Project leadership</p>
+          <h3>A period game set for a heritage house</h3>
+          <p>A local heritage house wanted something visitors could handle rather than look at. I researched period games, designed the pieces in SketchUp, priced and partly donated the bill of materials, hand-built the set including steam-bent wooden hoops, and delivered it with written instructions. Sixty logged hours of my own time over eleven months, plus a volunteer build day I scoped and ran. It was the first supply chain problem I ever solved, before I knew that is what it was called.</p>
+          <a class="work-link" href="eagle-scout.html">Read the project write-up &rarr;</a>
+        </div>
+        <div class="spec">
+          <dl>
+            <dt>Context</dt><dd>Eagle Scout service project</dd>
+            <dt>Role</dt><dd>Project lead</dd>
+            <dt>Scope</dt><dd>60 logged hours, volunteer build day</dd>
+            <dt>Timeline</dt><dd>Jul 2018 &ndash; Jun 2019</dd>
+            <dt>Outcome</dt><dd>Eagle Scout rank, 2020</dd>
+          </dl>
+        </div>
+      </article>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="section reveal" id="skills">
+      <h2 class="section-label">Skills &amp; tools</h2>
+      <div class="skill-grid">
+        <div>
+          <h3>Analysis</h3>
+          <ul>
+            <li>Spend analysis</li>
+            <li>Supplier management</li>
+            <li>Data modeling &amp; cleanup</li>
+            <li>Cost savings identification</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Software</h3>
+          <ul>
+            <li>Power BI</li>
+            <li>Python</li>
+            <li>Excel &mdash; pivot tables, Power Query</li>
+            <li>Salesforce &mdash; CRM, Marketing &amp; Service Cloud</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Certifications</h3>
+          <ul>
+            <li>Lean Six Sigma White Belt</li>
+            <li>UiPath Academy Automation Explorer</li>
+            <li>Enterprise generative AI tools</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section reveal" id="contact">
+      <h2 class="section-label">Contact</h2>
+      <p class="lede">Open to full-time sourcing, procurement, and supply chain analytics roles beginning summer 2027. The fastest way to reach me is <a href="mailto:cadenhill072@gmail.com">cadenhill072@gmail.com</a>.</p>
+    </section>
+
+    <footer>
+      <span>&copy; 2026 Caden Hill</span>
+      <span>Lawrence, KS &middot; Twin Cities, MN</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  (function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var items = document.querySelectorAll('.reveal');
+    if (reduce || !('IntersectionObserver' in window)) {
+      items.forEach(function (el) { el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+    items.forEach(function (el) { io.observe(el); });
+  })();
+</script>
+
+</body>
+</html>
