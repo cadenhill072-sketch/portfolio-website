@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Industrial Supplier Risk Scorecard · Caden Hill</title>
+<meta name="description" content="Industrial supplier risk scorecard for 30 made-up direct material suppliers, scored on delivery, quality, finances, concentration, disruptions and contract timing.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root{
+    --paper:#f6f7f5; --paper-2:#eceeeb; --ink:#1e232b; --muted:#5f6670;
+    --rule:#d5d9d6; --accent:#1f3a5f;
+    --display:"Source Serif 4",Georgia,serif;
+    --body:"IBM Plex Sans","Segoe UI",Helvetica,sans-serif;
+    --mono:"IBM Plex Sans","Segoe UI",Helvetica,sans-serif;
+    --ui:"IBM Plex Sans","Segoe UI",Helvetica,sans-serif;
+    --ink-2:#4a515b; --ink-3:#7a8089;
+    --low:#DC8A82; --med:#C24A3D; --high:#8E2219; --bad:#A3261C; --good:#2F6B2F;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
+    font-size:clamp(1rem,.95rem + .2vw,1.08rem);line-height:1.55;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+  .notice{background:#111;color:#fff;font-family:var(--mono);font-size:.74rem;line-height:1.6;padding:11px 20px;text-align:center;}
+  .wrap{max-width:1220px;margin:0 auto;padding:0 clamp(1rem,4vw,2rem) 4rem;}
+  .back{display:inline-block;font-family:var(--mono);font-size:.75rem;text-decoration:none;color:var(--muted);margin:2.25rem 0 2.75rem;}
+  .back:hover{color:var(--accent);}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 1rem;}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,1.6rem + 2.4vw,3.2rem);line-height:1;letter-spacing:-.03em;margin:0 0 1.1rem;}
+  .dek{font-size:clamp(1.08rem,1rem + .45vw,1.3rem);line-height:1.45;max-width:54ch;margin:0 0 2.25rem;}
+  h2{font-family:var(--display);font-weight:600;font-size:1.2rem;letter-spacing:-.01em;margin:0 0 .25rem;}
+  h3.sm{font-family:var(--ui);font-weight:600;font-size:.86rem;margin:0 0 .5rem;color:var(--ink);}
+  .sub{font-family:var(--ui);font-size:.82rem;color:var(--ink-2);margin:0 0 1rem;max-width:62ch;}
+
+  .filters{display:flex;flex-wrap:wrap;gap:.6rem 1.1rem;align-items:flex-end;padding:.85rem 0 1rem;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);position:sticky;top:0;background:var(--paper);z-index:5;}
+  .filters label{display:flex;flex-direction:column;gap:.25rem;font-family:var(--ui);font-size:.74rem;color:var(--ink-2);}
+  .filters select{font-family:var(--ui);font-size:.88rem;color:var(--ink);background:#F7F6F2;border:1px solid var(--rule);border-radius:3px;padding:.38rem 1.9rem .38rem .55rem;min-width:9rem;appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
+    background-position:calc(100% - 14px) 55%,calc(100% - 9px) 55%;background-size:5px 5px;background-repeat:no-repeat;}
+  .filters button{font-family:var(--ui);font-size:.8rem;background:none;border:0;padding:.45rem .1rem;color:var(--ink-2);cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+  .filters button:hover{color:var(--accent);}
+  .count{font-family:var(--ui);font-size:.78rem;color:var(--ink-3);margin-left:auto;align-self:center;}
+
+  .summary{font-size:clamp(1.05rem,1rem + .3vw,1.2rem);line-height:1.5;max-width:68ch;margin:1.75rem 0 2.5rem;}
+
+  section.block{border-top:1px solid var(--rule);padding-top:1.5rem;margin-top:2.25rem;}
+  .two{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:3rem;}
+  svg{display:block;width:100%;height:auto;overflow:visible;font-family:var(--ui);}
+  .ax{font-size:11px;fill:var(--ink-3);font-variant-numeric:tabular-nums;}
+  .axt{font-size:11px;fill:var(--ink-2);}
+  .quad{font-size:10.5px;fill:var(--ink-3);font-style:italic;}
+  .lbl{font-size:11px;fill:var(--ink);}
+  .dot{cursor:pointer;}
+  .legend{display:flex;gap:1rem;flex-wrap:wrap;font-family:var(--ui);font-size:.78rem;color:var(--ink-2);margin:.1rem 0 .4rem;}
+  .legend span{display:inline-flex;align-items:center;gap:.4rem;}
+  .sw{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none;}
+
+  .cats{display:grid;grid-template-columns:auto 1fr auto auto;gap:.5rem .65rem;align-items:center;font-family:var(--ui);font-size:.82rem;}
+  .cats .h{font-size:.72rem;color:var(--ink-3);}
+  .cats .nm{color:var(--ink);white-space:nowrap;}
+  .track{height:11px;}
+  .bar{height:11px;background:var(--accent);border-radius:0 3px 3px 0;min-width:2px;}
+  .num{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);}
+  .risk-chip{display:inline-flex;align-items:center;gap:.35rem;font-variant-numeric:tabular-nums;justify-content:flex-end;}
+
+  .watch{list-style:none;margin:0;padding:0;font-family:var(--ui);font-size:.82rem;}
+  .watch li{padding:.55rem 0;border-bottom:1px solid var(--rule);}
+  .watch li:first-child{border-top:1px solid var(--rule);}
+  .watch button{font:inherit;font-weight:600;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-align:left;}
+  .watch button:hover{color:var(--accent);text-decoration:underline;}
+  .watch .why{display:block;color:var(--ink-2);margin-top:.1rem;}
+  .watch .tag{font-size:.74rem;color:var(--ink-3);margin-left:.35rem;}
+  .watch .tag.hot{color:var(--bad);}
+  .watch .none{color:var(--ink-3);}
+
+  .tablewrap{overflow-x:auto;}
+  table{border-collapse:collapse;width:100%;font-family:var(--ui);font-size:.78rem;font-variant-numeric:tabular-nums;}
+  th{font-weight:600;font-size:.7rem;color:var(--ink-2);text-align:right;padding:.5rem .35rem;border-bottom:1px solid var(--ink-3);white-space:nowrap;cursor:pointer;user-select:none;vertical-align:bottom;}
+  th.l,td.l{text-align:left;}
+  th.hc{white-space:normal;text-align:center;width:3.4rem;line-height:1.2;}
+  th[aria-sort="descending"]::after{content:" \2193";} th[aria-sort="ascending"]::after{content:" \2191";}
+  th .w{display:block;font-weight:400;color:var(--ink-3);font-size:.66rem;}
+  td{padding:.4rem .35rem;border-bottom:1px solid var(--rule);text-align:right;white-space:nowrap;}
+  tbody tr{cursor:pointer;} tbody tr:hover td{background-color:#E6E5DF;}
+  tbody tr.sel td{box-shadow:inset 0 1px 0 var(--ink),inset 0 -1px 0 var(--ink);}
+  td.heat{text-align:center;width:3.4rem;border-left:2px solid var(--paper);border-bottom:2px solid var(--paper);}
+  td.risk{font-weight:700;}
+  .sname{font-weight:600;color:var(--ink);} .scat{display:block;color:var(--ink-3);font-size:.72rem;}
+  .badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.76rem;}
+  .act{font-size:.76rem;color:var(--ink-2);} .act.hot{color:var(--bad);font-weight:600;}
+
+  .dhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;align-items:flex-end;margin-bottom:1.25rem;}
+  .dhead h2{font-weight:800;font-size:1.75rem;letter-spacing:-.02em;line-height:1.05;margin:.1rem 0 .3rem;}
+  .dhead .k{font-family:var(--ui);font-size:.78rem;color:var(--ink-3);}
+  .dmeta{font-family:var(--ui);font-size:.84rem;color:var(--ink-2);}
+  .dscore{text-align:right;font-family:var(--ui);font-size:.84rem;}
+  .dscore .big{font-family:var(--display);font-weight:600;font-size:1.6rem;line-height:1;letter-spacing:-.03em;}
+  .dscore .of{font-size:.85rem;color:var(--ink-3);}
+  .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:2rem;margin:0 0 1.75rem;font-family:var(--ui);font-size:.84rem;}
+  .facts div{display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;border-bottom:1px solid var(--rule);}
+  .facts dt{color:var(--ink-2);} .facts dd{margin:0;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .facts dd small{color:var(--ink-3);margin-left:.3rem;}
+  .dgrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr) minmax(0,1fr);gap:2.25rem;}
+  .drv{display:grid;grid-template-columns:auto 1fr auto;gap:.55rem .6rem;align-items:center;font-family:var(--ui);font-size:.8rem;}
+  .drv .d{color:var(--ink);} .drv .d small{display:block;color:var(--ink-3);font-size:.68rem;}
+  .drv .t{height:9px;background:#E2D2CE;border-radius:0 3px 3px 0;}
+  .drv .f{height:9px;background:var(--med);border-radius:0 3px 3px 0;}
+  .drv .n{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);min-width:4.4rem;}
+  .drv .n small{color:var(--ink-3);}
+  .events{list-style:none;margin:.4rem 0 0;padding:0;font-family:var(--ui);font-size:.82rem;}
+  .events li{display:grid;grid-template-columns:6.2rem 6.2rem 5.2rem 1fr;gap:.75rem;padding:.45rem 0;border-bottom:1px solid var(--rule);}
+  .events .dt{color:var(--ink-2);font-variant-numeric:tabular-nums;} .events .ty{color:var(--ink);}
+  .events .none{color:var(--ink-3);}
+  .sevpill{display:inline-flex;align-items:center;gap:.3rem;}
+
+  .method{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:3rem;}
+  .method p{margin:0 0 1rem;max-width:60ch;}
+  .wt{font-family:var(--ui);font-size:.8rem;}
+  .wt td,.wt th{text-align:left;cursor:default;white-space:normal;vertical-align:top;}
+  .wt td:nth-child(2){text-align:right;}
+  footer:not(.foot){font-family:var(--ui);font-size:.78rem;color:var(--muted);border-top:1px solid var(--rule);margin-top:3rem;padding-top:1.1rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+
+  .tip{position:fixed;pointer-events:none;background:#FBFBF8;color:var(--ink);border:1px solid #CFCEC6;box-shadow:0 4px 14px rgba(0,0,0,.08);
+    border-radius:3px;padding:.5rem .65rem;font-family:var(--ui);font-size:.78rem;line-height:1.45;z-index:50;opacity:0;transition:opacity .08s;max-width:260px;}
+  .tip.on{opacity:1;}
+  .tip .tt{color:var(--ink-2);font-size:.72rem;margin-bottom:.2rem;}
+  .tip .r{display:flex;justify-content:space-between;gap:1rem;}
+  .tip .r b{font-variant-numeric:tabular-nums;}
+  .tip .r span{color:var(--ink-2);}
+
+  @media (max-width:1000px){
+    .two,.dgrid,.method{grid-template-columns:minmax(0,1fr);gap:2rem;}
+    .facts{grid-template-columns:1fr 1fr;}
+    .events li{grid-template-columns:6rem 1fr;}
+    #scatter{overflow-x:auto;} #scatter svg{min-width:580px;}
+  }
+  @media (max-width:560px){ .facts{grid-template-columns:1fr;} }
+  @media (forced-colors:active){ .bar,.drv .f{background:CanvasText;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="home" href="index.html">Caden Hill</a>
+    <nav aria-label="Main">
+      <a href="index.html#work">Work</a>
+      <a href="about.html">About</a>
+      <a href="files/caden-hill-resume.pdf">Resume (PDF)</a>
+    </nav>
+  </header>
+  <p class="kicker" style="margin-top:2.5rem">Excel, DAX and web dashboard, November 2026</p>
+    <h1>Industrial Supplier Risk Scorecard</h1>
+  <p class="dek">I scored 30 direct material suppliers for a made-up industrial manufacturer on six kinds of risk and plotted them against spend, to show which ones a sourcing team should deal with first.</p>
+  <p class="datanote" style="margin:-1.25rem 0 2rem">Made with synthetic data. Every supplier, number and event on this page is invented, any match to a real company name is a coincidence, and the data was generated in Python.</p>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <label>As of<select id="f-asof"></select></label>
+    <label>Category<select id="f-cat"></select></label>
+    <label>Supplier tier<select id="f-tier"></select></label>
+    <label>Country<select id="f-country"></select></label>
+    <button id="f-reset" type="button">Reset</button>
+    <span class="count" id="f-count"></span>
+  </div>
+
+  <p class="summary" id="summary" aria-live="polite"></p>
+
+  <section class="block two">
+    <div>
+      <h2>Spend vs. risk</h2>
+      <p class="sub">Each dot is a supplier. The dashed lines are the <span id="th-text"></span> cutoffs that split the four actions. Click a dot to open that supplier.</p>
+      <div class="legend" id="tier-legend"></div>
+      <div id="scatter"></div>
+    </div>
+    <div>
+      <h2>Spend by category</h2>
+      <p class="sub">Last 12 months, with each category's spend-weighted risk score.</p>
+      <div class="cats" id="cats"></div>
+      <h3 class="sm" style="margin-top:2rem">Who to look at first</h3>
+      <ul class="watch" id="watch"></ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Scorecard</h2>
+    <p class="sub">Each area is scored 0 (no risk) to 100, and darker cells mean more risk. Click a column header to sort or a row to open the supplier.</p>
+    <div class="tablewrap"><table id="tbl"></table></div>
+  </section>
+
+  <section class="block" id="detail" aria-live="polite"></section>
+
+  <section class="block method">
+    <div>
+      <h2>How the score works</h2>
+      <p>Each area gets scaled from 0 to 100 using fixed cutoffs and then weighted. Delivery and quality use the last six months, and spend, category share and disruption events use the last twelve. Changing the as-of month rescores the whole page, so you can watch a supplier get worse over time.</p>
+      <p>High risk is 50 and up, medium is 30 to 50, and low is under 30. The action split is 35 points of risk and 5 million dollars of spend.</p>
+      <p>The same scoring is built three ways: Excel formulas in the workbook, DAX measures written for Power BI, and JavaScript for this page.</p>
+    </div>
+    <div>
+      <table class="wt" id="wt"></table>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="files-h">
+    <h2 id="files-h">Files</h2>
+    <p class="sub">The same scoring in Excel and as DAX measures for Power BI. All suppliers and figures are made up.</p>
+    <ul class="files">
+      <li><a href="files/supplier-risk/Industrial_Supplier_Risk_Scorecard.xlsx">Industrial_Supplier_Risk_Scorecard.xlsx</a><span>Data tables and the Excel scorecard</span></li>
+      <li><a href="files/supplier-risk/DAX_Measures.dax">DAX_Measures.dax</a><span>Measures written for Power BI</span></li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <span>Caden Hill, 2026</span>
+    <ul>
+      <li><a href="mailto:cadenhill072@gmail.com">Email</a></li>
+      <li><a href="https://www.linkedin.com/in/cadenhill/">LinkedIn</a></li>
+      <li><a href="index.html">All work</a></li>
+    </ul>
+    <p class="colophon">Plain HTML, CSS and a little JavaScript. No template or framework.</p>
+</footer>
+</div>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script id="data" type="application/json">{"months":["2024-11-01","2024-12-01","2025-01-01","2025-02-01","2025-03-01","2025-04-01","2025-05-01","2025-06-01","2025-07-01","2025-08-01","2025-09-01","2025-10-01","2025-11-01","2025-12-01","2026-01-01","2026-02-01","2026-03-01","2026-04-01","2026-05-01","2026-06-01","2026-07-01","2026-08-01","2026-09-01","2026-10-01"],"suppliers":[{"id":"S01","name":"Corwell Metals Service","category":"Aluminum Bar & Plate","country":"United States","region":"Illinois","tier":"Strategic","single":"No","health":82,"geo":18,"contractEnd":"2028-06-30","since":2015},{"id":"S02","name":"Haverlin Aluminum Supply","category":"Aluminum Bar & Plate","country":"United States","region":"Texas","tier":"Preferred","single":"No","health":74,"geo":22,"contractEnd":"2027-09-30","since":2014},{"id":"S03","name":"Tamsen Bar & Plate","category":"Aluminum Bar & Plate","country":"United States","region":"Ohio","tier":"Preferred","single":"No","health":69,"geo":15,"contractEnd":"2027-12-31","since":2013},{"id":"S04","name":"Gulf Reach Metals","category":"Aluminum Bar & Plate","country":"United States","region":"Texas","tier":"Approved","single":"No","health":61,"geo":48,"contractEnd":"2027-03-31","since":2022},{"id":"S05","name":"Ashgrove Foundry","category":"Castings","country":"United States","region":"Ohio","tier":"Strategic","single":"No","health":78,"geo":20,"contractEnd":"2028-03-31","since":2011},{"id":"S06","name":"Pruett Castings","category":"Castings","country":"United States","region":"Alabama","tier":"Preferred","single":"No","health":66,"geo":30,"contractEnd":"2027-06-30","since":2016},{"id":"S07","name":"Lakehead Precision Castings","category":"Castings","country":"Canada","region":"Ontario","tier":"Approved","single":"No","health":71,"geo":24,"contractEnd":"2027-11-30","since":2017},{"id":"S08","name":"Cerro Alto Precision","category":"Machined Components","country":"Mexico","region":"Chihuahua","tier":"Strategic","single":"Yes","health":52,"geo":55,"contractEnd":"2027-02-28","since":2011},{"id":"S09","name":"Trinity Gap Machining","category":"Machined Components","country":"United States","region":"Texas","tier":"Preferred","single":"No","health":77,"geo":16,"contractEnd":"2028-01-31","since":2018},{"id":"S10","name":"Mission Bend Precision","category":"Machined Components","country":"United States","region":"California","tier":"Approved","single":"No","health":63,"geo":46,"contractEnd":"2027-08-31","since":2019},{"id":"S11","name":"Coosa River Machine","category":"Machined Components","country":"United States","region":"Alabama","tier":"Approved","single":"No","health":70,"geo":34,"contractEnd":"2028-04-30","since":2023},{"id":"S12","name":"Harborline Fastener Supply","category":"Fasteners","country":"United States","region":"Pennsylvania","tier":"Strategic","single":"No","health":80,"geo":18,"contractEnd":"2028-09-30","since":2015},{"id":"S13","name":"Pinecrest Bolt & Screw","category":"Fasteners","country":"United States","region":"Michigan","tier":"Preferred","single":"No","health":68,"geo":20,"contractEnd":"2027-10-31","since":2018},{"id":"S14","name":"Rio Lerma Sujetadores","category":"Fasteners","country":"Mexico","region":"Estado de Mexico","tier":"Approved","single":"No","health":57,"geo":52,"contractEnd":"2027-04-30","since":2024},{"id":"S15","name":"Fernwood Circuits","category":"Circuit Boards","country":"United States","region":"Minnesota","tier":"Preferred","single":"No","health":79,"geo":15,"contractEnd":"2028-02-29","since":2018},{"id":"S16","name":"Signal Peak Electronics","category":"Circuit Boards","country":"United States","region":"Colorado","tier":"Approved","single":"No","health":64,"geo":22,"contractEnd":"2027-07-31","since":2018},{"id":"S17","name":"Bosque River Electronics","category":"Semiconductors","country":"United States","region":"Texas","tier":"Strategic","single":"No","health":84,"geo":26,"contractEnd":"2028-12-31","since":2015},{"id":"S18","name":"Red River Microdevices","category":"Semiconductors","country":"United States","region":"Texas","tier":"Preferred","single":"No","health":72,"geo":32,"contractEnd":"2027-12-31","since":2018},{"id":"S19","name":"Laurentide Semiconductors","category":"Semiconductors","country":"Canada","region":"Quebec","tier":"Preferred","single":"No","health":67,"geo":36,"contractEnd":"2027-05-31","since":2013},{"id":"S20","name":"Ozark Ridge Semiconductor","category":"Semiconductors","country":"United States","region":"Arkansas","tier":"Approved","single":"No","health":65,"geo":38,"contractEnd":"2028-05-31","since":2019},{"id":"S21","name":"Bayou Teche Motor Works","category":"Electric Motors","country":"United States","region":"Louisiana","tier":"Strategic","single":"No","health":76,"geo":44,"contractEnd":"2028-03-31","since":2010},{"id":"S22","name":"Hollister Ridge Motors","category":"Electric Motors","country":"United States","region":"Iowa","tier":"Preferred","single":"No","health":27,"geo":24,"contractEnd":"2027-06-30","since":2020},{"id":"S23","name":"Valle Norte Motores","category":"Electric Motors","country":"Mexico","region":"Nuevo Leon","tier":"Approved","single":"No","health":60,"geo":50,"contractEnd":"2027-09-30","since":2022},{"id":"S24","name":"Kaskaskia Wire & Cable","category":"Wire & Harness","country":"United States","region":"Illinois","tier":"Strategic","single":"No","health":81,"geo":22,"contractEnd":"2028-06-30","since":2016},{"id":"S25","name":"Cascade Ridge Harness","category":"Wire & Harness","country":"United States","region":"Washington","tier":"Approved","single":"No","health":69,"geo":30,"contractEnd":"2027-10-31","since":2019},{"id":"S26","name":"Selatan Harness Technologies","category":"Wire & Harness","country":"Malaysia","region":"Johor","tier":"Preferred","single":"Yes","health":59,"geo":74,"contractEnd":"2027-08-31","since":2018},{"id":"S27","name":"Driftless Bearing Co.","category":"Bearings & Seals","country":"United States","region":"Wisconsin","tier":"Strategic","single":"No","health":75,"geo":20,"contractEnd":"2028-01-31","since":2013},{"id":"S28","name":"Pell Creek Seal & Gasket","category":"Bearings & Seals","country":"United States","region":"Minnesota","tier":"Approved","single":"No","health":66,"geo":24,"contractEnd":"2027-04-30","since":2023},{"id":"S29","name":"Nandi Hills Sensortech","category":"Sensors","country":"India","region":"Karnataka","tier":"Approved","single":"No","health":62,"geo":63,"contractEnd":"2027-11-30","since":2017},{"id":"S30","name":"Quillfield Sensor Labs","category":"Sensors","country":"United States","region":"New Jersey","tier":"Strategic","single":"Yes","health":73,"geo":18,"contractEnd":"2027-01-31","since":2013}],"monthly":{"S01":[[786579.77,45,44,823144,447,5.8],[780933.84,43,42,789188,625,5.7],[838592.36,47,45,890336,673,6.3],[854966.49,49,47,791570,486,6.2],[894010.89,48,47,945465,721,6.2],[843414.0,45,45,823405,738,6.6],[865766.84,50,48,880512,571,5.9],[863797.31,47,46,786738,450,5.7],[671888.36,40,39,683290,458,5.6],[824979.55,44,42,757270,458,6.4],[880912.53,47,46,958996,610,6.6],[797060.43,45,44,850060,471,5.8],[807063.64,46,44,744900,370,5.4],[693560.46,42,41,707306,474,5.6],[738009.65,41,39,765358,476,6.5],[834129.35,48,47,920120,680,5.7],[765707.39,41,40,711467,555,5.6],[896336.34,51,50,842476,517,5.8],[941971.54,56,55,873895,679,5.9],[866875.87,46,44,835335,448,5.9],[914829.89,55,54,969814,444,6.6],[836904.86,47,46,868378,670,6.6],[1005464.5,56,54,1021202,645,6.0],[908966.21,47,46,860541,408,6.2]],"S02":[[487459.62,37,36,490816,392,5.8],[405625.94,28,27,443414,466,5.1],[458520.73,33,31,439298,310,5.4],[445623.9,33,32,486528,469,5.3],[464148.28,33,32,457102,399,3.9],[477448.43,31,30,455195,419,5.1],[429377.38,29,27,399092,361,5.0],[497314.94,33,32,458851,452,4.8],[439817.18,29,28,436981,403,5.3],[436567.3,29,28,464127,376,4.5],[457568.05,30,28,441768,360,5.1],[470643.1,30,29,472067,400,4.9],[512109.49,37,36,540789,397,5.2],[448938.06,33,32,428384,414,5.2],[419679.71,29,28,419194,298,5.0],[481228.31,32,31,532750,453,5.1],[471778.72,35,34,478349,329,5.0],[437840.19,30,28,416519,318,4.4],[468106.53,31,30,446503,445,4.9],[543898.73,35,34,502603,467,4.7],[495873.35,33,32,494871,330,5.7],[553364.52,37,36,574015,427,5.1],[525331.16,34,33,491709,390,5.1],[644647.41,44,43,641341,469,4.7]],"S03":[[363893.2,26,25,349455,248,5.4],[302013.26,21,20,284026,182,6.0],[328465.72,22,21,335054,266,5.8],[319737.88,23,22,295596,204,5.9],[332184.26,23,22,353280,239,6.2],[345952.33,23,22,352132,274,5.8],[331497.66,23,22,330455,251,6.2],[348343.69,26,25,356859,186,6.4],[287616.8,22,21,313069,250,6.7],[319073.12,23,22,328295,293,5.8],[343009.92,26,25,377058,252,6.2],[318690.4,22,21,342372,242,6.7],[360267.57,25,24,347619,263,6.3],[340378.52,22,21,357995,260,6.1],[317615.06,23,22,304215,254,5.2],[310763.14,23,22,299426,208,5.8],[375774.84,25,24,370533,271,6.2],[394068.05,29,28,416382,272,5.7],[358991.37,28,27,392376,327,5.8],[398733.26,29,28,406040,268,6.5],[359787.24,26,25,383195,279,5.6],[399160.36,31,31,434851,279,6.1],[436120.99,31,30,416824,269,5.3],[446811.28,33,32,445281,264,6.1]],"S04":[[176331.96,15,14,180101,194,6.7],[158689.68,14,13,148954,151,6.9],[172507.85,16,15,176048,172,6.2],[177810.89,15,14,177932,165,7.1],[202880.13,17,16,195130,251,6.7],[186270.32,15,14,199697,187,7.1],[188657.42,15,14,196929,220,7.7],[182169.58,16,15,182398,178,7.4],[169260.83,13,12,166222,206,7.7],[205972.6,16,15,202463,211,7.3],[207115.61,18,17,190515,233,8.5],[193005.49,17,16,191469,200,7.3],[196023.22,17,16,185990,264,7.2],[174073.92,14,13,173754,254,7.2],[191656.27,15,14,187811,205,7.3],[180442.08,15,14,167259,199,6.7],[187172.86,17,16,170885,239,7.6],[203666.21,15,14,198377,205,7.2],[181399.37,15,14,194289,236,6.8],[208435.25,18,17,204791,273,8.4],[184175.33,16,15,168027,248,7.5],[203062.56,17,16,187087,223,7.3],[217955.76,18,17,205173,280,7.2],[199090.78,17,16,184100,208,7.8]],"S05":[[670490.44,32,31,676747,495,37.2],[596702.61,28,27,570170,532,40.1],[660063.96,28,27,691392,569,38.0],[770375.9,36,35,739222,577,36.2],[830594.1,38,37,878367,755,34.8],[719549.69,32,31,680163,548,34.8],[683096.38,30,29,631548,562,38.6],[711721.42,33,32,708077,509,37.5],[667728.3,30,29,702646,569,35.9],[692216.4,29,28,707170,548,34.7],[699940.18,27,26,663561,539,39.5],[688498.29,32,31,674051,564,36.5],[657488.73,32,31,626187,435,37.6],[634504.63,30,29,649659,490,41.0],[605471.9,28,27,617892,336,38.8],[691592.07,35,34,765762,622,38.6],[746447.55,35,34,716946,495,42.3],[728332.88,29,28,693038,468,39.3],[766223.65,35,34,762741,616,33.2],[730324.86,34,33,705694,589,37.6],[685511.25,34,34,746949,650,37.2],[694338.99,32,31,647298,445,39.1],[710598.1,34,33,774936,531,42.5],[752801.03,34,33,693493,473,38.1]],"S06":[[434957.54,19,18,399879,524,44.8],[383861.63,18,17,384906,474,43.7],[321340.54,16,15,293885,361,39.6],[380880.73,19,18,359763,378,45.8],[418585.24,20,19,418896,573,39.5],[402392.54,22,21,420512,491,41.2],[425882.12,23,22,431533,446,45.6],[413820.01,22,21,387613,437,42.2],[362639.26,18,17,380943,519,45.5],[388977.25,19,18,427371,580,43.6],[442162.68,23,22,405574,565,41.7],[425230.87,21,20,397401,492,41.8],[423111.95,20,19,463539,620,43.5],[370942.57,18,17,347753,391,38.5],[416653.6,21,20,427562,441,41.9],[360998.12,18,17,351506,436,39.9],[404058.39,20,19,382930,468,41.6],[389077.11,17,16,380946,445,41.1],[428254.1,22,21,453695,665,44.1],[470175.47,24,23,498905,708,40.0],[422853.27,21,20,427087,504,42.3],[457313.29,24,22,416394,608,42.4],[453413.38,24,23,462043,710,38.1],[413576.37,21,20,425962,703,42.9]],"S07":[[232551.39,12,11,235330,323,44.4],[217959.58,12,11,223935,257,45.8],[201123.42,11,10,219816,305,46.5],[226095.64,11,10,238715,367,48.8],[233719.58,11,10,238219,376,45.7],[190158.75,10,9,209846,356,40.3],[212119.66,11,10,213888,310,44.4],[237058.43,13,12,225863,382,51.6],[200845.85,10,9,221178,298,42.8],[188990.91,10,9,174657,254,43.1],[230057.35,12,11,227770,260,41.7],[213143.56,11,10,197219,282,43.9],[182994.91,9,8,197358,255,46.8],[198784.21,11,10,187617,294,45.6],[193731.51,10,9,195786,264,49.2],[224363.01,11,10,241033,274,46.3],[247686.69,14,13,257757,355,44.9],[221169.19,11,10,245112,264,44.1],[221351.35,11,10,219332,385,41.3],[233827.8,12,11,224786,317,46.1],[207743.62,10,10,195696,259,46.1],[236641.15,13,12,233330,328,44.7],[236503.74,12,12,258326,278,44.2],[246957.16,13,12,242751,285,46.2]],"S08":[[1145095.59,43,41,1157363,1910,30.5],[1133233.75,46,44,1061806,1329,30.2],[1181922.3,46,44,1106456,1397,29.7],[1235009.74,46,43,1369466,2234,27.7],[1167738.26,46,44,1281531,1824,30.4],[1081467.31,43,41,1028355,1797,25.8],[1196429.4,47,44,1242531,1814,31.4],[1264193.2,47,44,1200217,2342,29.2],[1077483.34,38,36,1162024,2234,28.7],[1180339.32,42,39,1137148,1891,30.5],[1232540.37,48,44,1186683,2512,29.4],[1195089.54,43,39,1302096,2463,29.2],[1210271.03,48,43,1110429,2205,29.9],[1033075.76,43,39,995548,2351,30.2],[1112333.91,43,39,1199245,2625,34.6],[1072802.05,43,39,1028103,2755,29.6],[1186459.18,48,42,1295579,3247,33.7],[1210828.54,48,43,1293914,3449,32.7],[1268624.55,51,45,1166582,3140,31.2],[1219676.84,44,38,1247141,3886,35.5],[1052091.34,38,33,1097532,3475,33.2],[1159494.96,42,36,1189767,4146,35.0],[1274018.7,51,43,1305573,4380,37.1],[1265160.42,49,41,1318037,4171,34.3]],"S09":[[510966.86,20,19,494699,490,19.5],[488497.53,21,20,471573,372,22.3],[510618.55,22,21,535099,481,21.4],[509748.98,21,20,478097,449,21.5],[547715.63,22,21,590982,558,23.3],[477100.42,19,19,452265,440,21.6],[527142.72,23,22,518235,512,21.8],[540566.9,22,21,500882,413,17.6],[534414.19,23,22,570071,433,20.6],[526686.64,22,21,542133,532,21.3],[587261.38,25,24,597169,518,22.8],[568288.76,25,24,590135,647,19.9],[518633.79,20,19,497539,400,21.8],[468152.31,20,19,455201,431,21.1],[511789.78,20,19,537744,435,22.7],[460825.09,19,18,488631,501,21.6],[519549.3,22,21,475931,371,21.9],[548052.62,22,21,502303,668,21.1],[555917.81,22,21,505789,606,20.6],[535175.03,22,21,497646,399,20.0],[510882.11,20,19,488774,519,19.6],[534502.47,23,22,559647,545,19.7],[543722.09,19,18,533240,495,20.8],[550046.56,23,22,599435,574,22.0]],"S10":[[271932.71,13,12,292639,299,22.0],[266514.05,12,11,281690,367,24.7],[298002.17,14,13,282829,417,27.2],[286059.75,14,13,262906,302,26.6],[287733.44,15,14,273705,309,24.1],[256470.99,12,11,245221,349,24.4],[300085.46,15,14,312069,367,24.2],[294749.57,15,14,286038,399,24.6],[257113.16,11,10,247620,373,23.7],[294861.41,12,11,321714,398,23.1],[289155.04,13,12,299378,313,26.9],[312698.11,15,14,333334,579,22.8],[307213.95,14,13,309040,402,23.3],[238120.1,11,10,222328,300,24.4],[271657.63,13,12,296334,351,23.2],[272859.3,12,11,297365,412,23.5],[300308.28,14,13,276361,420,22.0],[298115.01,13,12,327217,508,20.7],[305811.67,14,13,302402,481,26.1],[306115.33,16,15,338141,430,25.0],[271466.67,13,12,287803,404,23.0],[243546.04,12,11,228903,354,23.9],[307636.52,15,14,312093,435,23.5],[280795.36,13,12,266097,344,21.4]],"S11":[[168209.99,9,9,185406,191,18.6],[164817.18,8,8,165933,184,20.5],[161999.25,8,8,156996,134,22.6],[177599.13,8,8,188595,170,22.5],[171924.66,9,9,188969,204,23.0],[167242.59,9,9,173668,165,21.9],[166178.17,8,8,158425,149,21.8],[174989.57,8,8,170639,158,23.1],[156048.15,7,7,165120,175,22.9],[171636.86,9,9,179830,149,21.7],[186963.77,10,10,198816,192,23.3],[176963.58,10,10,189112,185,19.6],[160330.3,8,8,152601,154,23.3],[146089.54,7,7,143284,142,20.6],[159657.79,8,8,146856,126,21.8],[162361.69,9,9,161430,172,23.8],[199958.27,10,10,191490,210,21.4],[157361.06,8,8,167149,172,22.4],[165750.57,8,8,181407,138,24.1],[176169.74,9,9,166118,177,21.9],[161738.07,8,8,165595,174,20.8],[186586.67,9,9,202914,204,24.0],[185386.36,11,10,196453,159,22.7],[180821.58,8,8,169428,141,22.9]],"S12":[[623763.48,25,24,590634,316,9.1],[533180.7,23,22,486044,261,10.8],[570049.27,20,19,519201,331,9.0],[619027.62,24,23,685492,446,10.0],[688207.4,30,29,698294,427,9.4],[641551.94,26,25,654986,385,10.1],[602979.26,23,22,610676,393,9.8],[627264.8,26,25,592242,460,9.4],[616207.94,26,25,658882,450,9.4],[654286.5,27,26,626782,394,9.5],[641557.18,25,24,670943,343,9.9],[692328.15,27,27,703445,438,10.3],[576165.03,23,22,612568,430,10.0],[622588.41,23,22,684522,461,10.1],[576145.82,23,22,621692,386,10.2],[657946.59,26,25,671458,431,9.0],[704837.13,28,27,678712,371,10.4],[598728.77,25,24,552906,287,9.8],[624949.16,24,23,627971,364,10.3],[603959.6,26,25,641511,398,11.2],[581890.78,22,22,643172,383,9.7],[663062.51,25,24,703380,428,10.3],[754588.93,26,25,737022,369,10.0],[603474.05,24,23,570289,307,8.5]],"S13":[[322051.52,13,13,327492,287,12.4],[308523.4,13,12,302863,257,15.1],[347695.3,15,14,319530,321,13.0],[300637.23,13,12,322555,302,13.7],[286804.39,14,13,270518,266,13.6],[294804.58,14,13,304003,277,13.2],[335177.11,15,14,369295,288,13.6],[288369.33,12,11,289398,266,15.0],[258328.09,11,10,267486,201,14.4],[285150.98,13,12,314757,276,14.1],[331839.25,15,14,339615,309,13.8],[324269.67,13,12,330310,273,13.6],[326293.79,13,12,306488,269,13.3],[290648.74,12,11,276519,253,13.0],[274795.27,12,11,254177,234,12.5],[296497.59,12,11,309967,245,13.7],[381014.38,16,15,358416,254,14.0],[334617.24,15,14,312287,235,15.5],[335581.64,14,14,325516,291,14.0],[312357.73,13,12,307037,253,13.3],[293376.63,12,12,271992,198,13.8],[310285.1,13,12,313946,297,13.6],[317588.95,15,15,318101,225,13.8],[329544.32,14,13,338144,230,13.5]],"S14":[[251802.11,11,10,253264,507,21.2],[236231.68,11,10,224720,396,21.5],[233289.89,10,9,226290,418,21.9],[253988.92,12,11,268923,587,20.5],[232635.67,11,10,222452,377,21.1],[230257.2,10,9,239720,478,21.6],[225806.3,9,8,217077,395,21.6],[232927.51,11,10,249061,383,19.2],[220624.91,10,9,202829,419,22.2],[222034.39,10,9,219658,480,19.8],[215629.37,11,10,228740,421,21.7],[261609.39,11,10,240018,459,22.3],[251788.72,11,10,264284,532,20.7],[215581.4,10,9,225704,432,22.5],[222827.08,10,9,212470,459,20.8],[237353.66,11,10,227225,526,23.5],[264436.27,12,11,281827,641,20.1],[238787.59,10,9,227229,523,21.4],[257615.34,12,11,248384,593,24.6],[226872.95,10,9,218811,546,22.0],[219224.07,10,9,218093,558,20.7],[243747.96,11,10,230733,522,24.0],[276213.26,12,11,295282,689,24.1],[257005.54,13,12,259894,634,24.4]],"S15":[[160583.36,20,20,172748,89,19.1],[136551.13,19,19,146895,75,18.9],[155691.51,19,19,168878,75,16.6],[165656.29,20,20,170001,89,17.9],[166029.84,22,22,160468,86,17.4],[154170.78,18,18,145476,83,17.9],[152491.36,21,20,157609,68,16.4],[160439.12,21,21,171734,79,18.9],[141251.04,20,20,143714,61,20.1],[157368.11,18,18,165767,94,18.4],[177877.73,24,23,162005,99,16.3],[150157.57,19,19,155884,80,19.1],[170029.84,21,21,159724,80,20.2],[142796.8,18,18,133660,63,19.1],[151375.62,17,17,144063,87,17.3],[129774.8,15,15,133850,63,16.6],[177726.78,23,22,175614,87,17.4],[162067.11,20,19,148750,90,18.9],[164539.6,21,20,157104,70,17.8],[165787.29,20,20,181423,85,17.2],[155926.81,19,18,146999,66,18.4],[163561.81,19,18,176784,83,18.3],[157047.24,20,20,171530,81,17.2],[176968.66,21,20,179337,77,19.5]],"S16":[[96909.61,12,11,89252,85,20.8],[91457.1,12,12,84366,65,19.0],[78675.65,11,10,81553,89,20.1],[91707.4,14,13,95111,94,19.0],[94539.96,13,12,96280,87,20.6],[89529.98,14,14,83343,77,20.7],[94483.44,12,12,92654,100,21.5],[108406.26,14,14,111249,98,20.3],[82777.41,12,11,77618,67,20.3],[94335.02,13,12,90389,67,19.3],[88520.03,14,13,91534,97,21.8],[81506.38,12,11,87048,84,21.8],[95541.48,14,13,92860,74,19.4],[86700.55,13,12,85573,58,21.9],[77424.09,11,10,85883,83,19.5],[86579.23,12,11,87809,86,19.2],[93043.81,14,13,87961,88,22.1],[89506.3,12,12,88193,83,22.8],[91478.34,14,13,100630,98,17.4],[99841.49,14,13,102809,114,20.3],[83441.53,12,11,79746,90,20.6],[90990.98,14,13,100704,99,22.5],[101738.22,14,13,109100,118,20.3],[99141.08,14,13,105909,90,21.9]],"S17":[[1346862.17,42,40,1358853,390,6.2],[1240063.79,40,39,1323315,275,5.4],[1383713.71,41,39,1298819,355,5.6],[1318762.61,42,41,1411482,356,6.1],[1356621.02,45,43,1442113,398,5.9],[1326589.04,44,43,1212659,302,6.1],[1288860.93,43,42,1195598,314,6.3],[1524739.58,46,45,1489207,319,5.9],[1311722.58,43,42,1257890,246,6.2],[1546733.29,47,46,1679816,489,5.6],[1437144.07,45,44,1560904,375,5.7],[1300700.04,38,37,1365542,302,6.1],[1367094.37,39,38,1297941,306,5.7],[1316379.61,44,43,1455487,372,5.6],[1276154.73,39,38,1248562,265,5.9],[1362038.22,42,41,1427825,363,6.0],[1558507.12,50,50,1430503,315,5.8],[1259303.12,36,35,1247957,284,6.1],[1479721.3,44,42,1636231,433,6.3],[1451772.87,49,48,1480601,407,5.9],[1170321.64,38,37,1213845,271,5.7],[1247742.3,41,40,1200167,284,5.9],[1653743.23,55,54,1571958,372,6.4],[1324523.02,39,38,1346958,357,5.7]],"S18":[[751376.4,24,23,685349,187,89.0],[767642.57,26,25,820232,237,86.2],[624755.0,19,18,646060,216,82.4],[794684.59,26,25,745039,204,71.7],[745939.36,24,23,815959,244,82.1],[739483.12,27,26,807084,240,80.1],[704694.45,23,22,739190,251,86.1],[745242.64,23,22,812201,193,82.0],[649558.1,21,20,720364,233,91.1],[760429.34,28,27,745250,215,82.2],[773877.54,27,26,830966,240,86.4],[721075.49,22,21,676631,237,88.1],[759396.16,25,24,815616,222,85.0],[721071.14,26,25,687027,199,78.8],[674026.66,24,23,701437,202,80.5],[704456.62,22,21,718883,229,89.3],[832907.7,30,28,845014,314,83.9],[769141.91,27,26,821519,252,83.2],[819429.89,26,25,857395,284,83.4],[808557.78,28,27,776800,243,87.3],[691153.07,25,24,743153,269,93.4],[818156.46,25,24,802066,224,87.0],[739269.52,24,23,681179,251,85.9],[799692.55,23,22,782171,285,78.5]],"S19":[[535660.55,19,18,560585,193,91.5],[437746.8,16,15,453707,144,82.6],[525619.14,18,17,581739,210,92.5],[504138.88,18,17,490815,184,92.1],[572237.83,19,18,544630,203,88.1],[556284.0,19,18,506936,171,88.4],[508535.63,18,17,476924,159,94.4],[516262.07,20,19,485889,195,104.1],[464750.26,17,16,455702,156,99.3],[545951.25,19,18,530599,209,94.2],[560388.5,21,20,526659,178,84.9],[534491.09,18,17,553711,221,99.5],[515009.55,17,16,520881,214,96.8],[468157.21,17,16,435540,166,87.9],[469198.4,17,16,476569,160,85.8],[519103.34,18,17,503779,209,99.3],[514997.84,19,18,533242,235,89.9],[475801.17,16,15,457259,197,92.9],[525336.77,18,17,510845,218,106.5],[523782.41,18,17,528628,180,88.6],[503748.1,19,18,553914,262,90.0],[556251.39,20,19,532669,273,88.4],[537193.65,20,19,529251,248,91.9],[535515.89,21,20,581526,292,98.9]],"S20":[[268231.59,10,9,279885,103,74.9],[230834.44,8,8,232270,72,73.0],[232023.94,9,9,246280,90,75.7],[261278.3,9,9,255447,103,70.5],[257345.46,9,9,247281,107,73.0],[265021.38,11,10,268370,115,68.3],[243256.98,10,9,223619,93,57.6],[280379.12,12,11,258916,105,74.2],[228438.71,9,9,233794,94,70.9],[206602.65,7,7,188074,82,73.9],[278863.06,10,10,273943,121,70.7],[275656.06,11,11,273120,120,76.4],[239763.36,9,9,263200,116,65.5],[241852.82,10,10,227524,81,70.9],[242515.07,10,10,232336,99,71.9],[239848.9,9,9,222832,61,74.7],[266518.85,11,10,255551,113,74.5],[227770.95,9,9,236399,80,73.1],[283582.83,10,9,301735,156,63.4],[249357.57,9,9,244107,85,79.6],[244169.07,10,10,258647,86,74.1],[284483.47,11,11,264249,109,64.2],[279858.15,10,10,260776,101,61.2],[232165.87,9,8,220832,89,77.4]],"S21":[[980936.61,29,28,987232,590,39.3],[862363.74,25,24,811792,486,35.3],[923516.91,27,26,931266,519,34.5],[881812.22,25,25,915061,443,35.4],[1006023.82,30,29,985191,472,35.1],[1022211.92,28,27,1067451,526,37.0],[861596.09,24,23,941840,395,36.7],[994199.5,30,29,987431,520,39.3],[890821.72,27,25,905359,481,33.8],[888702.3,27,26,926010,356,35.9],[1077495.3,36,35,1117194,474,37.1],[1060434.38,31,30,1005205,529,38.0],[1089688.41,32,31,1120176,615,32.8],[880908.75,28,27,977611,459,33.9],[963589.6,28,27,1021521,593,37.8],[859426.99,26,25,821683,425,38.2],[1102318.25,33,32,1012157,561,33.2],[885339.54,26,25,810522,371,32.1],[984476.65,27,26,973072,514,35.5],[1066168.21,31,30,1145335,508,35.5],[954544.8,29,28,947036,486,35.7],[928787.94,26,25,917704,422,36.9],[976690.47,27,26,1015392,628,33.0],[1044005.58,32,30,953715,445,37.8]],"S22":[[719333.72,23,22,669949,493,37.8],[660136.48,22,21,602025,417,35.7],[705102.14,24,23,676606,503,36.2],[770760.53,25,24,796195,716,37.9],[796245.8,26,24,780771,445,39.1],[774037.18,25,24,807810,586,37.2],[692209.92,22,21,673827,465,37.4],[758587.52,26,25,777611,656,35.8],[655486.28,21,20,645403,517,39.6],[733977.94,24,23,712691,680,35.7],[838309.09,28,26,823047,730,38.8],[672325.63,22,21,635263,643,41.7],[690834.04,23,22,725977,785,41.2],[637378.44,21,19,675068,726,39.9],[694067.21,24,22,664896,828,43.2],[689106.0,22,20,742511,939,36.0],[785328.05,26,24,743096,839,44.1],[748023.58,24,22,757104,954,43.7],[695381.14,22,20,661376,848,38.8],[801590.2,25,23,858790,1119,43.6],[670227.65,21,19,658277,894,42.4],[763640.7,24,21,836408,1187,41.1],[732453.97,23,21,791372,1030,42.7],[745669.82,25,22,739918,1057,46.9]],"S23":[[320644.22,11,10,319285,271,30.1],[261817.62,9,8,248693,273,28.0],[304390.72,10,9,297273,298,27.9],[276664.26,9,8,280696,297,31.2],[356441.91,11,10,339499,306,27.7],[301630.68,10,9,304053,254,33.6],[305817.71,10,9,320975,315,31.2],[308540.38,11,10,321674,233,29.0],[252199.29,9,8,265722,222,29.6],[335782.19,11,10,315546,336,31.1],[335459.5,12,11,352299,296,31.2],[352890.78,12,11,369811,283,31.2],[282196.6,10,9,276861,270,31.2],[281657.21,9,8,269549,299,30.6],[309727.16,11,10,290648,240,33.2],[346218.8,11,10,318913,227,29.0],[351886.06,11,10,329563,293,32.4],[313590.48,10,9,320017,284,30.2],[306768.92,11,10,338572,323,29.0],[347168.03,13,12,368196,358,28.9],[264133.88,8,7,251605,225,31.1],[289767.31,10,9,271820,276,31.9],[339392.52,11,10,330119,309,31.2],[325059.97,11,10,316760,257,35.1]],"S24":[[837301.01,28,27,911911,388,14.6],[812076.62,23,22,813622,382,13.9],[787378.45,24,23,726200,309,12.2],[774044.9,24,23,791171,313,14.2],[747096.33,22,21,824930,342,12.6],[855538.8,28,27,933250,427,14.5],[787269.07,25,24,825617,256,14.0],[845310.27,27,26,773041,255,15.5],[751909.69,21,20,831997,357,14.0],[778516.26,23,22,830562,356,14.8],[801533.58,27,26,864093,394,12.9],[932947.93,30,29,883571,287,14.4],[800106.19,23,22,823248,327,13.7],[768568.29,23,22,742018,271,14.5],[754235.68,22,21,759344,360,13.8],[766925.01,24,23,748011,314,14.5],[893654.11,25,24,891544,329,14.6],[884048.3,28,27,836225,326,15.2],[821514.53,24,23,770752,281,13.4],[933422.89,28,27,851006,350,13.1],[774330.06,23,22,768813,330,12.5],[803976.4,24,23,795221,383,15.3],[961774.48,31,30,948576,389,13.8],[865094.51,27,26,824677,254,14.8]],"S25":[[204949.01,7,7,219991,124,19.4],[171808.26,6,6,168867,87,18.9],[203862.14,7,7,195513,131,19.0],[199587.76,8,8,193179,135,19.8],[199224.64,7,7,201157,128,19.2],[192741.82,7,7,195812,119,20.9],[207363.19,7,7,214782,130,20.5],[198390.86,7,7,192919,132,19.2],[197610.18,7,7,196775,119,19.9],[189470.66,7,7,208923,134,20.2],[196589.91,7,7,209017,118,19.4],[203956.33,7,7,196015,131,19.2],[182824.97,7,7,183708,103,19.7],[183433.13,7,7,196074,112,20.3],[186974.92,6,6,189211,133,20.2],[228287.05,9,9,210180,115,21.1],[200944.93,7,7,218639,151,20.5],[204278.88,7,7,205724,124,20.8],[225750.87,9,9,223168,162,18.9],[241324.69,8,8,253290,158,18.4],[191681.76,7,7,190524,114,21.1],[214543.36,7,7,198406,130,19.5],[199727.18,7,7,188905,103,17.5],[215036.39,8,8,208807,117,17.8]],"S26":[[473177.26,10,9,481353,412,49.2],[396987.0,9,8,403693,420,44.5],[423057.92,10,9,419954,326,42.7],[445637.79,10,9,433779,393,46.7],[479983.7,10,9,496112,437,50.0],[417235.19,10,9,407445,415,46.9],[406346.11,9,8,415573,370,54.0],[424247.72,8,7,386874,341,43.4],[393579.22,10,9,382372,391,47.4],[435731.31,10,9,478123,358,45.6],[446587.51,10,9,468304,469,47.9],[468427.3,10,9,437762,437,40.8],[429672.14,10,9,441396,459,52.2],[430710.17,9,8,399944,343,52.5],[406196.11,10,9,406430,403,49.6],[435308.82,10,9,472198,536,48.9],[455075.98,10,9,429630,418,50.2],[419459.11,9,8,429390,496,49.5],[478228.93,11,10,497708,448,49.0],[485661.09,11,10,531493,598,51.8],[431656.58,10,9,424476,532,49.0],[479940.6,11,10,457807,617,52.3],[509153.15,11,10,550427,627,48.9],[494535.41,12,11,490226,580,53.2]],"S27":[[637887.11,23,22,621679,330,23.7],[584689.2,21,21,566141,364,19.4],[567039.29,24,23,563257,292,22.1],[574782.52,21,20,535929,272,21.2],[587075.55,22,21,603847,405,20.8],[594626.4,21,21,600722,305,22.4],[571440.15,21,21,566936,331,20.3],[624240.71,23,22,604867,391,21.3],[542165.65,19,18,594807,320,22.6],[619031.65,22,21,629433,390,22.3],[616496.36,23,22,657649,352,23.0],[589819.17,22,21,614631,349,19.3],[563446.62,21,20,599615,278,21.4],[537583.41,20,19,570846,267,20.3],[584493.82,20,19,574855,326,20.6],[522829.58,20,19,486003,270,20.6],[611114.5,24,23,634895,376,20.7],[615623.66,24,24,589030,271,18.6],[645353.51,20,19,687319,429,21.4],[641695.48,25,24,584128,422,21.1],[557439.78,19,19,540043,323,21.4],[596065.75,21,20,564120,354,20.3],[620157.96,22,21,623503,281,19.9],[641156.99,26,25,660178,367,22.6]],"S28":[[229640.77,10,10,236435,184,16.1],[221918.94,9,9,210328,203,13.6],[199433.99,7,7,190033,132,13.9],[197186.6,8,8,202003,161,12.8],[248270.12,9,9,242932,167,17.1],[223181.61,9,8,243919,169,15.2],[227469.38,10,10,248357,197,13.1],[233556.64,10,10,248811,174,15.6],[209177.25,9,8,193252,157,15.4],[211222.3,9,8,204270,151,14.8],[222475.21,9,8,207021,118,13.9],[219238.09,9,8,200638,169,13.7],[229156.9,10,9,243497,174,14.5],[226064.74,9,9,209022,167,13.1],[228134.64,9,9,222837,161,13.9],[214197.4,9,9,225585,206,15.6],[211951.4,9,9,198968,132,13.8],[215871.44,9,8,213617,186,15.3],[223641.83,10,9,214610,158,14.2],[224017.54,9,9,226038,187,13.2],[210772.88,8,8,231091,215,14.5],[238255.44,10,9,227987,185,14.9],[249974.56,11,10,258296,236,14.8],[219154.63,9,9,205160,168,13.7]],"S29":[[116330.93,7,6,119191,330,54.8],[94274.04,6,5,95698,281,49.7],[114158.81,7,6,118260,376,54.9],[99120.86,6,6,93537,240,50.0],[109417.72,6,5,104615,217,52.2],[108954.93,7,6,100989,330,53.6],[113374.11,7,6,122225,332,55.3],[106476.75,6,5,114140,325,57.6],[95019.9,6,5,104160,275,61.3],[106770.79,7,7,100429,294,52.9],[118931.28,7,6,109356,333,56.4],[106664.54,7,6,98753,282,56.3],[119851.3,8,7,131879,421,59.5],[101546.51,7,6,101541,343,55.4],[98116.36,7,6,108816,415,53.5],[108161.6,7,6,105078,306,56.0],[119689.34,7,6,114908,377,58.0],[119128.91,8,7,108784,391,57.3],[116142.2,7,6,105929,402,51.6],[118560.87,8,7,116480,429,59.1],[100832.8,6,5,92938,382,52.2],[122013.0,7,6,130143,486,62.6],[127656.38,7,6,123725,480,54.4],[126760.54,8,7,128995,534,56.0]],"S30":[[378463.45,31,30,418599,191,29.7],[327379.98,28,27,302478,133,28.8],[346571.38,26,25,329230,160,30.1],[346009.1,30,29,332871,158,30.4],[334348.0,26,25,361038,133,31.0],[414693.2,33,32,449450,177,31.9],[371313.77,31,30,369440,178,29.1],[390371.54,30,29,374445,195,30.7],[333687.51,26,25,356925,169,31.4],[389809.95,33,32,377862,199,28.3],[393213.14,35,34,413146,203,28.9],[401545.16,36,35,419634,211,31.5],[393320.59,33,32,403633,124,29.6],[321318.71,27,26,348289,161,32.2],[368013.96,32,31,408327,176,31.2],[396432.47,32,31,392815,161,24.9],[363298.26,28,27,336400,174,30.1],[376951.47,28,27,394360,163,30.8],[331268.07,28,27,324379,151,27.9],[388128.04,29,28,362396,175,30.7],[360127.78,31,30,370475,154,30.7],[341628.45,26,25,323146,150,32.5],[394311.81,31,30,430769,201,31.7],[358984.64,30,29,347136,180,29.2]]},"events":[{"sid":"S08","date":"2025-06-12","type":"Capacity","sev":"Medium","pts":2,"desc":"Spindle crash took the 5-axis cell down 9 days, two part numbers put on allocation"},{"sid":"S19","date":"2025-07-22","type":"Capacity","sev":"Low","pts":1,"desc":"Wafer supply short, two MOSFET families put on allocation"},{"sid":"S14","date":"2025-08-05","type":"Logistics","sev":"Low","pts":1,"desc":"Rail disruption out of central Mexico"},{"sid":"S04","date":"2025-08-28","type":"Weather","sev":"Medium","pts":2,"desc":"Hurricane closed the Houston warehouse for 5 days"},{"sid":"S21","date":"2025-09-12","type":"Weather","sev":"Low","pts":1,"desc":"Hurricane closed the plant for 2 days"},{"sid":"S26","date":"2025-09-30","type":"Geopolitical","sev":"Medium","pts":2,"desc":"New US tariff on wire harness imports from Malaysia"},{"sid":"S30","date":"2025-10-21","type":"Cyber","sev":"Medium","pts":2,"desc":"Ransomware hit, order portal down 4 days"},{"sid":"S29","date":"2025-11-18","type":"Quality","sev":"High","pts":3,"desc":"Pressure sensor lot failed calibration and was rejected"},{"sid":"S25","date":"2025-12-03","type":"Logistics","sev":"Low","pts":1,"desc":"Snowstorm in the Pacific NW delayed 3 loads"},{"sid":"S22","date":"2025-12-15","type":"Financial","sev":"Medium","pts":2,"desc":"Credit rating cut one notch, got a covenant waiver from lenders"},{"sid":"S10","date":"2026-01-26","type":"Labor","sev":"Low","pts":1,"desc":"Lost two senior machinists, a few late orders"},{"sid":"S19","date":"2026-02-09","type":"Logistics","sev":"Low","pts":1,"desc":"CN rail strike threat, moved some loads to truck"},{"sid":"S26","date":"2026-02-11","type":"ESG","sev":"Medium","pts":2,"desc":"NGO report raised labor concerns at a sub-tier copper supplier, audit opened"},{"sid":"S07","date":"2026-02-17","type":"Logistics","sev":"Low","pts":1,"desc":"Paperwork hold-up at the Detroit-Windsor crossing"},{"sid":"S08","date":"2026-03-04","type":"Labor","sev":"Medium","pts":2,"desc":"Labor slowdown at the Chihuahua plant. Deliveries running 2-4 days late"},{"sid":"S06","date":"2026-03-19","type":"Capacity","sev":"Low","pts":1,"desc":"Furnace reline ran a week long"},{"sid":"S29","date":"2026-04-02","type":"Quality","sev":"Medium","pts":2,"desc":"Connector pins out of spec on a full shipment"},{"sid":"S12","date":"2026-04-14","type":"Cyber","sev":"Low","pts":1,"desc":"Phishing attack took the ERP down, 1 day of manual orders"},{"sid":"S22","date":"2026-04-20","type":"Financial","sev":"High","pts":3,"desc":"Asked to move from net 60 to net 15 payment terms"},{"sid":"S18","date":"2026-05-06","type":"Capacity","sev":"Low","pts":1,"desc":"Fab tool upgrade pushed out lead times by 2 weeks"},{"sid":"S14","date":"2026-05-15","type":"Quality","sev":"Medium","pts":2,"desc":"Thread pitch off on M8 bolts, had to 100% sort"},{"sid":"S26","date":"2026-05-28","type":"Logistics","sev":"Medium","pts":2,"desc":"Congestion at Tanjung Pelepas added about 12 days in transit"},{"sid":"S23","date":"2026-06-02","type":"Geopolitical","sev":"Low","pts":1,"desc":"USMCA review put tariff treatment of its motors in question"},{"sid":"S08","date":"2026-06-18","type":"Quality","sev":"High","pts":3,"desc":"Bore diameter out of tolerance on 3 lots, parts on hold and 100% sorted"},{"sid":"S16","date":"2026-06-23","type":"Capacity","sev":"Low","pts":1,"desc":"SMT line upgrade, output down for 2 weeks"},{"sid":"S22","date":"2026-07-09","type":"Capacity","sev":"Medium","pts":2,"desc":"Idled 1 of 2 winding lines, two motor frames on allocation"},{"sid":"S04","date":"2026-07-16","type":"Weather","sev":"Medium","pts":2,"desc":"Tropical storm flooding, lost 2 days of shipping"},{"sid":"S28","date":"2026-07-30","type":"Quality","sev":"Low","pts":1,"desc":"O-ring lot came in under the hardness spec"},{"sid":"S30","date":"2026-08-03","type":"Commercial","sev":"Low","pts":1,"desc":"Renewal talks started, supplier hinting at a 7% increase"},{"sid":"S29","date":"2026-08-14","type":"Weather","sev":"Medium","pts":2,"desc":"Monsoon flooding around Bengaluru shut the plant for 3 days"},{"sid":"S19","date":"2026-08-25","type":"Capacity","sev":"Medium","pts":2,"desc":"Second allocation in a row, supplier invoked the allocation clause"},{"sid":"S08","date":"2026-08-27","type":"Logistics","sev":"Medium","pts":2,"desc":"El Paso border delays, missed the delivery window on 11 loads"},{"sid":"S01","date":"2026-09-04","type":"Commercial","sev":"Low","pts":1,"desc":"Bar price increase notice tied to the Midwest premium"},{"sid":"S26","date":"2026-09-08","type":"Weather","sev":"Medium","pts":2,"desc":"Flooding in Johor shut the plant for 4 days"},{"sid":"S10","date":"2026-09-10","type":"Regulatory","sev":"Low","pts":1,"desc":"Its outside anodizer lost a wastewater permit for 2 weeks"},{"sid":"S02","date":"2026-09-15","type":"Commercial","sev":"Low","pts":1,"desc":"Price increase letter citing the Midwest premium"},{"sid":"S03","date":"2026-09-18","type":"Commercial","sev":"Low","pts":1,"desc":"Price increase notice (aluminum)"},{"sid":"S22","date":"2026-09-22","type":"Financial","sev":"High","pts":3,"desc":"Lenders reviewing options (possible sale or restructuring)"},{"sid":"S14","date":"2026-09-29","type":"Capacity","sev":"Medium","pts":2,"desc":"Fire took out two cold heading machines, 6-8 weeks to recover"},{"sid":"S08","date":"2026-10-02","type":"Commercial","sev":"Low","pts":1,"desc":"Sent notice of a 9% increase starting Jan 2027, citing aluminum and wages"}],"weights":{"Delivery":0.2,"Quality":0.15,"Financial":0.2,"Concentration":0.2,"Geography & Disruption":0.15,"Contract":0.1},"th":{"otif_best":0.98,"otif_worst":0.85,"ppm_good":500,"ppm_bad":5000,"single_pts":60,"share_cap":0.5,"geo_weight":0.6,"sev_cap":8,"contract_safe":18,"contract_urgent":3,"high":50,"medium":30,"seg_risk":35,"seg_spend":5000000.0}}</script>
+<script>
+// scoring logic, same math as the Excel Scorecard tab and the DAX measures
+function scoreAll(D, asOfIdx) {
+  const TH = D.th, W = D.weights;
+  const clamp = (x) => Math.min(1, Math.max(0, x));
+  const w6 = asOfIdx - 5, w12 = Math.max(0, asOfIdx - 11);
+  const ms = D.months;                       // 'YYYY-MM-01'
+  const startStr = ms[w12];
+  const asOf = ms[asOfIdx];
+  const [ay, am] = asOf.split('-').map(Number);
+  const endUTC = Date.UTC(ay, am, 0);        // last day of as-of month
+  const endStr = new Date(endUTC).toISOString().slice(0, 10);
+  const out = [];
+  for (const s of D.suppliers) {
+    const rows = D.monthly[s.id];
+    let spend12 = 0, del = 0, otif = 0, units = 0, def = 0, lead = 0, n6 = 0;
+    for (let i = w12; i <= asOfIdx; i++) spend12 += rows[i][0];
+    for (let i = Math.max(0, w6); i <= asOfIdx; i++) {
+      del += rows[i][1]; otif += rows[i][2]; units += rows[i][3]; def += rows[i][4]; lead += rows[i][5]; n6++;
+    }
+    let sev12 = 0, ev12 = 0;
+    for (const e of D.events) if (e.sid === s.id && e.date >= startStr && e.date <= endStr) { sev12 += e.pts; ev12++; }
+    const [cy, cm, cd] = s.contractEnd.split('-').map(Number);
+    const monthsLeft = (Date.UTC(cy, cm - 1, cd) - endUTC) / 86400000 / 30.4375;
+    out.push({ s, spend12, otif6: del ? otif / del : 0, ppm6: units ? def / units * 1e6 : 0,
+               lead6: n6 ? lead / n6 : 0, sev12, ev12, monthsLeft });
+  }
+  const catTot = {};
+  for (const o of out) catTot[o.s.category] = (catTot[o.s.category] || 0) + o.spend12;
+  for (const o of out) {
+    const s = o.s;
+    o.share = catTot[s.category] ? o.spend12 / catTot[s.category] : 0;
+    o.d = {
+      Delivery: clamp((TH.otif_best - o.otif6) / (TH.otif_best - TH.otif_worst)) * 100,
+      Quality: clamp((o.ppm6 - TH.ppm_good) / (TH.ppm_bad - TH.ppm_good)) * 100,
+      Financial: 100 - s.health,
+      Concentration: (s.single === 'Yes' ? TH.single_pts : 0) + clamp(o.share / TH.share_cap) * (100 - TH.single_pts),
+      'Geography & Disruption': TH.geo_weight * s.geo + (1 - TH.geo_weight) * clamp(o.sev12 / TH.sev_cap) * 100,
+      Contract: clamp((TH.contract_safe - o.monthsLeft) / (TH.contract_safe - TH.contract_urgent)) * 100,
+    };
+    o.risk = 0;
+    for (const k in W) o.risk += W[k] * o.d[k];
+    o.tier = o.risk >= TH.high ? 'High' : (o.risk >= TH.medium ? 'Medium' : 'Low');
+    const hr = o.risk >= TH.seg_risk, hs = o.spend12 >= TH.seg_spend;
+    o.action = hr ? (hs ? 'Mitigate now' : 'Qualify alternate') : (hs ? 'Partner & leverage' : 'Routine');
+  }
+  return out;
+}
+if (typeof module !== 'undefined') module.exports = { scoreAll };
+
+</script>
+<script>
+(function(){
+const D = JSON.parse(document.getElementById('data').textContent);
+const TIER_COLOR = {Low:'#DC8A82', Medium:'#C24A3D', High:'#8E2219'};
+const C = {grid:'#D5D9D6', axis:'#B4B3AA', ink:'#1E232B', ink3:'#7A8089', paper:'#F6F7F5', accent:'#1F3A5F', high:'#8E2219'};
+const DIMS = ['Delivery','Quality','Financial','Concentration','Geography & Disruption','Contract'];
+const DIM_SHORT = {'Delivery':'Delivery','Quality':'Quality','Financial':'Financial','Concentration':'Concen&shy;tration','Geography & Disruption':'Geo &amp; disrup&shy;tion','Contract':'Contract'};
+const DIM_HOW = {
+  'Delivery':'OTIF over the last 6 months. 98% or better scores 0 and 85% or worse scores 100.',
+  'Quality':'Defect PPM over the last 6 months. 500 or less scores 0 and 5,000 or more scores 100.',
+  'Financial':'100 minus a financial health score (stands in for something like a D&B rating).',
+  'Concentration':'60 points for being single sourced, plus up to 40 more based on share of category spend.',
+  'Geography & Disruption':'Country and region risk counts for 60%. The other 40% comes from disruption events in the last 12 months (high = 3 points, medium = 2, low = 1, capped at 8).',
+  'Contract':'Time left on the contract. 18 months or more scores 0 and 3 months or less scores 100.'
+};
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MON_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const mLabel = (iso) => { const [y,m] = iso.split('-').map(Number); return MON[m-1] + ' ' + y; };
+const mLong = (iso) => { const [y,m] = iso.split('-').map(Number); return MON_LONG[m-1] + ' ' + y; };
+const mShort = (iso) => { const [y,m] = iso.split('-').map(Number); return MON[m-1] + " '" + String(y).slice(2); };
+const FIRST_IDX = 5, LAST_IDX = D.months.length - 1;
+
+const CACHE = {};
+for (let i = FIRST_IDX; i <= LAST_IDX; i++) {
+  const res = scoreAll(D, i); const map = {};
+  res.forEach(o => map[o.s.id] = o); CACHE[i] = {res, map};
+}
+const state = {asOf: LAST_IDX, cat: 'All', tier: 'All', country: 'All', sortKey: 'risk', sortDir: -1, sel: null};
+
+const fmtM = v => '$' + (v/1e6).toFixed(1) + 'M';
+const fmtPct = (v,d=1) => (v*100).toFixed(d) + '%';
+const fmt0 = v => Math.round(v).toLocaleString('en-US');
+const fmt1 = v => v.toFixed(1);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function heat(v){
+  const t = Math.max(0, Math.min(1, v/100));
+  const a=[243,242,237], b=[142,34,25];
+  const c = a.map((x,i)=>Math.round(x+(b[i]-x)*Math.pow(t,0.85)));
+  const lum = (0.2126*c[0]+0.7152*c[1]+0.0722*c[2])/255;
+  return {bg:`rgb(${c.join(',')})`, fg: lum < 0.55 ? '#ffffff' : '#17181A'};
+}
+const tierOf = v => v >= D.th.high ? 'High' : (v >= D.th.medium ? 'Medium' : 'Low');
+const dot = (tier, size=10) => `<span class="sw" style="width:${size}px;height:${size}px;background:${TIER_COLOR[tier]}"></span>`;
+const plural = (n, w) => `${n} ${w}${n===1?'':'s'}`;
+
+const tip = document.getElementById('tip');
+function showTip(html, x, y){
+  tip.innerHTML = html; tip.classList.add('on');
+  const r = tip.getBoundingClientRect();
+  let left = x + 14, top = y + 14;
+  if (left + r.width > window.innerWidth - 8) left = x - r.width - 14;
+  if (top + r.height > window.innerHeight - 8) top = y - r.height - 14;
+  tip.style.left = left + 'px'; tip.style.top = top + 'px';
+}
+function hideTip(){ tip.classList.remove('on'); }
+const trow = (val, lab) => `<div class="r"><b>${val}</b><span>${lab}</span></div>`;
+
+function opt(sel, values, cur){
+  sel.innerHTML = '';
+  values.forEach(([v,l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; if (String(v)===String(cur)) o.selected = true; sel.appendChild(o); });
+}
+const uniq = k => ['All', ...Array.from(new Set(D.suppliers.map(s => s[k]))).sort()];
+function initFilters(){
+  const months = []; for (let i = LAST_IDX; i >= FIRST_IDX; i--) months.push([i, mLabel(D.months[i])]);
+  opt(document.getElementById('f-asof'), months, state.asOf);
+  opt(document.getElementById('f-cat'), uniq('category').map(v=>[v, v==='All'?'All categories':v]), state.cat);
+  opt(document.getElementById('f-tier'), ['All','Strategic','Preferred','Approved'].map(v=>[v, v==='All'?'All tiers':v]), state.tier);
+  opt(document.getElementById('f-country'), uniq('country').map(v=>[v, v==='All'?'All countries':v]), state.country);
+  document.getElementById('f-asof').onchange = e => { state.asOf = +e.target.value; render(); };
+  document.getElementById('f-cat').onchange = e => { state.cat = e.target.value; render(); };
+  document.getElementById('f-tier').onchange = e => { state.tier = e.target.value; render(); };
+  document.getElementById('f-country').onchange = e => { state.country = e.target.value; render(); };
+  document.getElementById('f-reset').onclick = () => { Object.assign(state, {asOf: LAST_IDX, cat:'All', tier:'All', country:'All', sel:null}); initFilters(); render(); };
+}
+function filtered(res){
+  return res.filter(o => (state.cat==='All'||o.s.category===state.cat) && (state.tier==='All'||o.s.tier===state.tier) && (state.country==='All'||o.s.country===state.country));
+}
+function wRisk(list){ const sp = list.reduce((a,o)=>a+o.spend12,0); return sp ? list.reduce((a,o)=>a+o.risk*o.spend12,0)/sp : 0; }
+
+// written summary instead of a row of stat tiles
+function renderSummary(list){
+  const el = document.getElementById('summary');
+  if (!list.length) { el.textContent = 'No suppliers match these filters.'; return; }
+  const who = `${state.tier!=='All' ? state.tier.toLowerCase()+' ' : ''}supplier${list.length===1?'':'s'}${state.cat!=='All' ? ' in '+state.cat : ''}${state.country!=='All' ? ' based in '+state.country : ''}`;
+  const spend = list.reduce((a,o)=>a+o.spend12,0);
+  const hi = list.filter(o=>o.tier==='High');
+  const hiSpend = hi.reduce((a,o)=>a+o.spend12,0);
+  const single = list.filter(o=>o.s.single==='Yes');
+  const wr = wRisk(list);
+  const when = `As of ${mLong(D.months[state.asOf])}, `;
+  const span = state.asOf >= 11 ? 'over the last 12 months' : `since ${mLong(D.months[0])}`;
+  let t;
+  if (list.length === 1) {
+    const o = list[0];
+    t = when + `the only ${who}, ${o.s.name}, is ${o.tier.toLowerCase()} risk with ${fmtM(spend)} of spend ${span}.`;
+  } else if (hi.length) {
+    t = when + `${hi.length} of the ${list.length} ${who} ${hi.length===1?'is':'are'} high risk, and ${hi.length===1?'it holds':'they hold'} ${fmtM(hiSpend)} of the ${fmtM(spend)} spent ${span} (${fmtPct(hiSpend/spend,0)}).`;
+  } else {
+    t = when + `${list.length===2?'neither':'none'} of the ${list.length} ${who} ${list.length===2?'is':'are'} high risk. Spend ${span} was ${fmtM(spend)}.`;
+  }
+  t += list.length===1 ? ` Their score is ${fmt1(wr)}` : ` The spend-weighted risk score is ${fmt1(wr)}`;
+  const prevIdx = state.asOf - 6;
+  if (prevIdx >= FIRST_IDX) {
+    const ids = new Set(list.map(o=>o.s.id));
+    const d = wr - wRisk(CACHE[prevIdx].res.filter(o=>ids.has(o.s.id)));
+    t += Math.abs(d) < 0.05 ? `, about the same as in ${mLabel(D.months[prevIdx])}.` : `, ${d>0?'up':'down'} ${Math.abs(d).toFixed(1)} from ${mLabel(D.months[prevIdx])}.`;
+  } else t += '.';
+  if (single.length) t += ` ${fmtM(single.reduce((a,o)=>a+o.spend12,0))} goes to ${plural(single.length,'supplier')} with no qualified backup.`;
+  el.textContent = t;
+}
+
+function niceStep(max, n){ const raw = max/n; const p = Math.pow(10, Math.floor(Math.log10(raw))); const f = raw/p; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; }
+function renderScatter(list){
+  const el = document.getElementById('scatter');
+  const W = 680, H = 420, m = {l:44, r:14, t:12, b:46};
+  const pw = W-m.l-m.r, ph = H-m.t-m.b;
+  const allMax = Math.max(...CACHE[state.asOf].res.map(o=>o.spend12), D.th.seg_spend*1.5);
+  const step = niceStep(allMax, 4); const xMax = Math.ceil(allMax*1.04/step)*step;
+  const X = v => m.l + v/xMax*pw, Y = v => m.t + (1 - v/100)*ph;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Risk score vs. 12-month spend for ${list.length} suppliers. The scorecard table has the same numbers.">`;
+  for (let v=0; v<=100; v+=20) s += `<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v===0?C.axis:C.grid}" stroke-width="1"/><text class="ax" x="${m.l-8}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
+  for (let v=step; v<=xMax+1; v+=step) s += `<line x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${m.t+ph}" stroke="${C.grid}" stroke-width="1"/>`;
+  for (let v=0; v<=xMax+1; v+=step) s += `<text class="ax" x="${X(v)}" y="${H-m.b+17}" text-anchor="middle">$${(v/1e6).toFixed(0)}M</text>`;
+  s += `<text class="axt" x="${m.l+pw/2}" y="${H-6}" text-anchor="middle">Spend, last 12 months</text>`;
+  s += `<text class="axt" transform="translate(11 ${m.t+ph/2}) rotate(-90)" text-anchor="middle">Risk score</text>`;
+  const tx = X(D.th.seg_spend), ty = Y(D.th.seg_risk);
+  s += `<line x1="${tx}" x2="${tx}" y1="${m.t}" y2="${m.t+ph}" stroke="${C.ink3}" stroke-dasharray="4 4"/><line x1="${m.l}" x2="${W-m.r}" y1="${ty}" y2="${ty}" stroke="${C.ink3}" stroke-dasharray="4 4"/>`;
+  s += `<text class="quad" x="${W-m.r-6}" y="${m.t+15}" text-anchor="end">deal with now</text>`;
+  s += `<text class="quad" x="${tx-8}" y="${m.t+15}" text-anchor="end">qualify a backup</text>`;
+  s += `<text class="quad" x="${W-m.r-6}" y="${m.t+ph-8}" text-anchor="end">partner</text>`;
+  s += `<text class="quad" x="${m.l+8}" y="${m.t+ph-8}">routine</text>`;
+  const pts = list.map(o => ({o, x:X(o.spend12), y:Y(o.risk)})).sort((a,b)=>a.o.risk-b.o.risk);
+  pts.forEach(p => {
+    const sel = state.sel === p.o.s.id;
+    s += `<circle cx="${p.x}" cy="${p.y}" r="${sel?8:6}" fill="${TIER_COLOR[p.o.tier]}" stroke="${sel?C.ink:C.paper}" stroke-width="2"/>`;
+  });
+  const placed = [], dots = pts.map(p=>({x:p.x-7,y:p.y-7,w:14,h:14}));
+  const hit = (a,b) => a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+  pts.filter(p => p.o.tier==='High' || state.sel===p.o.s.id).sort((a,b)=>b.o.risk-a.o.risk).forEach(p => {
+    const t = p.o.s.name, w = t.length*5.9, h = 13, off = state.sel===p.o.s.id ? 12 : 10;
+    const cands = [
+      {x:p.x+off, y:p.y-h/2, a:'start'}, {x:p.x-off-w, y:p.y-h/2, a:'end'},
+      {x:p.x-w/2, y:p.y-12-h, a:'middle'}, {x:p.x-w/2, y:p.y+10, a:'middle'},
+      {x:p.x+8, y:p.y-18, a:'start'}, {x:p.x+8, y:p.y+6, a:'start'}];
+    for (const c of cands) {
+      const box = {x:c.x, y:c.y, w, h};
+      if (box.x < m.l || box.x+w > W-m.r+4 || box.y < m.t+18 || box.y+h > m.t+ph) continue;
+      if (placed.some(b=>hit(b,box)) || dots.some(d=>hit(d,box) && !(Math.abs(d.x+7-p.x)<1 && Math.abs(d.y+7-p.y)<1))) continue;
+      placed.push(box);
+      const tx2 = c.a==='start'?c.x:(c.a==='end'?c.x+w:c.x+w/2);
+      s += `<text class="lbl" x="${tx2}" y="${c.y+h-3}" text-anchor="${c.a}">${esc(t)}</text>`;
+      break;
+    }
+  });
+  pts.forEach(p => { s += `<circle class="dot" data-id="${p.o.s.id}" cx="${p.x}" cy="${p.y}" r="13" fill="transparent" tabindex="0" role="button" aria-label="${esc(p.o.s.name)}: risk ${fmt1(p.o.risk)}, spend ${fmtM(p.o.spend12)}"/>`; });
+  s += '</svg>';
+  el.innerHTML = s;
+  el.querySelectorAll('.dot').forEach(c => {
+    const o = CACHE[state.asOf].map[c.dataset.id];
+    const html = () => `<div class="tt">${esc(o.s.name)}, ${esc(o.s.category)}</div>${trow(fmt1(o.risk), 'risk ('+o.tier.toLowerCase()+')')}${trow(fmtM(o.spend12),'spend, 12 mo')}${trow(o.action,'')}`;
+    c.addEventListener('pointermove', e => showTip(html(), e.clientX, e.clientY));
+    c.addEventListener('pointerleave', hideTip);
+    c.addEventListener('focus', () => { const r = c.getBoundingClientRect(); showTip(html(), r.right, r.top); });
+    c.addEventListener('blur', hideTip);
+    c.addEventListener('click', () => select(o.s.id, true));
+    c.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); select(o.s.id, true); } });
+  });
+  document.getElementById('th-text').textContent = `$${(D.th.seg_spend/1e6).toFixed(0)}M spend and ${D.th.seg_risk}-point risk`;
+}
+
+function renderCats(list){
+  const by = {};
+  list.forEach(o => { const c = o.s.category; (by[c] = by[c] || []).push(o); });
+  const rows = Object.entries(by).map(([c, arr]) => ({c, arr, spend: arr.reduce((a,o)=>a+o.spend12,0), wr: wRisk(arr), hi: arr.filter(o=>o.tier==='High').length}))
+    .sort((a,b)=>b.spend-a.spend);
+  const max = Math.max(...rows.map(r=>r.spend), 1);
+  let h = `<span class="h">Category</span><span class="h"></span><span class="h" style="text-align:right">Spend</span><span class="h" style="text-align:right">Risk</span>`;
+  rows.forEach((r,i) => {
+    h += `<span class="nm">${esc(r.c)}</span><span class="track" data-i="${i}"><div class="bar" style="width:${(r.spend/max*100).toFixed(1)}%"></div></span><span class="num">${fmtM(r.spend)}</span><span class="risk-chip">${dot(tierOf(r.wr),8)}${fmt1(r.wr)}</span>`;
+  });
+  const el = document.getElementById('cats'); el.innerHTML = h;
+  el.querySelectorAll('.track').forEach(tr => {
+    const r = rows[+tr.dataset.i];
+    tr.addEventListener('pointermove', e => showTip(`<div class="tt">${esc(r.c)}</div>${trow(fmtM(r.spend),'spend, 12 mo')}${trow(fmt1(r.wr),'weighted risk')}${trow(r.arr.length,'suppliers')}${trow(r.hi,'high risk')}`, e.clientX, e.clientY));
+    tr.addEventListener('pointerleave', hideTip);
+  });
+}
+
+// plain-language reasons from the two or three biggest score drivers
+function reasons(o){
+  let parts = DIMS.map(d=>({d, c:o.d[d]*D.weights[d]})).sort((a,b)=>b.c-a.c);
+  const strong = parts.filter(x=>o.d[x.d]>=50);
+  parts = (strong.length ? strong : parts).slice(0,3);
+  return parts.map(({d}) => {
+    if (d==='Delivery') return `OTIF ${fmtPct(o.otif6)}`;
+    if (d==='Quality') return `${fmt0(o.ppm6)} defect PPM`;
+    if (d==='Financial') return `financial health ${o.s.health}/100`;
+    if (d==='Concentration') return o.s.single==='Yes' ? 'single source' : `${fmtPct(o.share,0)} of ${o.s.category.toLowerCase()} spend`;
+    if (d==='Geography & Disruption') return o.ev12 ? `${plural(o.ev12,'disruption')} in the last year` : `${o.s.country} exposure`;
+    return o.monthsLeft <= 0 ? 'contract expired' : `contract ends ${mLabel(o.s.contractEnd)}`;
+  }).join(', ');
+}
+function renderWatch(list){
+  const rows = list.filter(o => o.action==='Mitigate now' || o.action==='Qualify alternate').sort((a,b)=>b.risk-a.risk);
+  const el = document.getElementById('watch');
+  if (!rows.length) { el.innerHTML = '<li class="none">Nobody in the two action quadrants for this view.</li>'; return; }
+  el.innerHTML = rows.map(o => `<li><button type="button" data-id="${o.s.id}">${esc(o.s.name)}</button><span class="tag ${o.action==='Mitigate now'?'hot':''}">${o.action==='Mitigate now'?'deal with now':'qualify a backup'}</span><span class="why">${esc(reasons(o))}</span></li>`).join('');
+  el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => select(b.dataset.id, true)));
+}
+
+const COLS = [
+  {k:'rank', t:'#', v:o=>o._rank, f:v=>v},
+  {k:'name', t:'Supplier', l:true, v:o=>o.s.name},
+  {k:'spend12', t:'Spend 12 mo', v:o=>o.spend12, f:fmtM},
+  {k:'otif6', t:'OTIF 6 mo', v:o=>o.otif6, f:v=>fmtPct(v)},
+  {k:'ppm6', t:'PPM 6 mo', v:o=>o.ppm6, f:fmt0},
+  ...DIMS.map(d => ({k:'d:'+d, t:DIM_SHORT[d], w:Math.round(D.weights[d]*100)+'%', v:o=>o.d[d], heat:true})),
+  {k:'risk', t:'Risk', v:o=>o.risk, f:fmt1},
+  {k:'tier', t:'Tier', l:true, v:o=>o.risk},
+  {k:'action', t:'Action', l:true, v:o=>o.action},
+];
+const ACTION_TXT = {'Mitigate now':'Deal with now','Qualify alternate':'Qualify a backup','Partner & leverage':'Partner','Routine':'Routine'};
+function renderTable(list){
+  const ranked = [...CACHE[state.asOf].res].sort((a,b)=>b.risk-a.risk);
+  ranked.forEach((o,i)=>o._rank=i+1);
+  const col = COLS.find(c=>c.k===state.sortKey) || COLS[0];
+  const rows = [...list].sort((a,b) => { const x = col.v(a), y = col.v(b); return (x<y?-1:x>y?1:0) * state.sortDir; });
+  let h = '<thead><tr>' + COLS.map(c => `<th class="${c.l?'l':''}${c.heat?' hc':''}" data-k="${c.k}" scope="col" ${state.sortKey===c.k?`aria-sort="${state.sortDir<0?'descending':'ascending'}"`:''}>${c.t}${c.w?`<span class="w">${c.w}</span>`:''}</th>`).join('') + '</tr></thead><tbody>';
+  rows.forEach(o => {
+    h += `<tr data-id="${o.s.id}" class="${state.sel===o.s.id?'sel':''}" tabindex="0">`;
+    COLS.forEach(c => {
+      if (c.k==='name') h += `<td class="l"><span class="sname">${esc(o.s.name)}</span><span class="scat">${esc(o.s.category)}, ${esc(o.s.country)}${o.s.single==='Yes'?', single source':''}</span></td>`;
+      else if (c.heat) { const hc = heat(c.v(o)); h += `<td class="heat" style="background:${hc.bg};color:${hc.fg}">${Math.round(c.v(o))}</td>`; }
+      else if (c.k==='tier') h += `<td class="l"><span class="badge">${dot(o.tier,9)}${o.tier}</span></td>`;
+      else if (c.k==='action') h += `<td class="l"><span class="act ${o.action==='Mitigate now'?'hot':''}">${ACTION_TXT[o.action]}</span></td>`;
+      else if (c.k==='risk') h += `<td class="risk">${fmt1(o.risk)}</td>`;
+      else h += `<td>${c.f(c.v(o))}</td>`;
+    });
+    h += '</tr>';
+  });
+  h += '</tbody>';
+  const t = document.getElementById('tbl'); t.innerHTML = h;
+  t.querySelectorAll('th').forEach(th => th.addEventListener('click', () => {
+    const k = th.dataset.k; if (state.sortKey===k) state.sortDir *= -1; else { state.sortKey = k; state.sortDir = (k==='name'||k==='rank'||k==='otif6'||k==='action')?1:-1; }
+    renderTable(list);
+  }));
+  t.querySelectorAll('tbody tr').forEach(tr => {
+    tr.addEventListener('click', () => select(tr.dataset.id, true));
+    tr.addEventListener('keydown', e => { if (e.key==='Enter') select(tr.dataset.id, true); });
+  });
+}
+
+function lineChart(el, cfg){
+  const W = 360, H = 190, m = {l:40, r:12, t:12, b:26};
+  const pw = W-m.l-m.r, ph = H-m.t-m.b, n = cfg.ys.length;
+  const X = i => m.l + (n===1?pw/2:i/(n-1)*pw), Y = v => m.t + (1-(v-cfg.min)/(cfg.max-cfg.min))*ph;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(cfg.aria)}">`;
+  cfg.ticks.forEach(v => s += `<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${C.grid}"/><text class="ax" x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${cfg.fmtTick(v)}</text>`);
+  (cfg.refs||[]).forEach(r => s += `<line x1="${m.l}" x2="${W-m.r}" y1="${Y(r.y)}" y2="${Y(r.y)}" stroke="${C.ink3}" stroke-dasharray="4 4"/><text class="ax" x="${W-m.r}" y="${Y(r.y)-4}" text-anchor="end">${r.label}</text>`);
+  const lab = [0, Math.floor((n-1)/2), n-1];
+  lab.forEach(i => s += `<text class="ax" x="${X(i)}" y="${H-6}" text-anchor="${i===0?'start':i===n-1?'end':'middle'}">${cfg.xs[i]}</text>`);
+  const path = cfg.ys.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(Math.max(cfg.min,Math.min(cfg.max,v))).toFixed(1)}`).join('');
+  s += `<path d="${path}" fill="none" stroke="${cfg.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const li = n-1; s += `<circle cx="${X(li)}" cy="${Y(cfg.ys[li])}" r="4" fill="${cfg.color}" stroke="${C.paper}" stroke-width="2"/>`;
+  s += `<line class="xh" x1="0" x2="0" y1="${m.t}" y2="${m.t+ph}" stroke="${C.ink3}" stroke-width="1" visibility="hidden"/><circle class="xd" r="4" fill="${cfg.color}" stroke="${C.paper}" stroke-width="2" visibility="hidden"/>`;
+  s += `<rect class="ov" x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="transparent" tabindex="0"/></svg>`;
+  el.innerHTML = s;
+  const svg = el.querySelector('svg'), xh = svg.querySelector('.xh'), xd = svg.querySelector('.xd'), ov = svg.querySelector('.ov');
+  let cur = n-1;
+  const show = (i, cx, cy) => { cur = i; xh.setAttribute('x1',X(i)); xh.setAttribute('x2',X(i)); xh.setAttribute('visibility','visible');
+    xd.setAttribute('cx',X(i)); xd.setAttribute('cy',Y(cfg.ys[i])); xd.setAttribute('visibility','visible');
+    showTip(`<div class="tt">${cfg.xs[i]}</div>${trow(cfg.fmt(cfg.ys[i]), cfg.name)}`, cx, cy); };
+  const hide = () => { xh.setAttribute('visibility','hidden'); xd.setAttribute('visibility','hidden'); hideTip(); };
+  ov.addEventListener('pointermove', e => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(n-1, Math.round((px - m.l)/pw*(n-1)))); show(i, e.clientX, e.clientY); });
+  ov.addEventListener('pointerleave', hide); ov.addEventListener('blur', hide);
+  ov.addEventListener('keydown', e => { if (e.key==='ArrowLeft'||e.key==='ArrowRight') { e.preventDefault(); const i = Math.max(0,Math.min(n-1,cur+(e.key==='ArrowLeft'?-1:1))); const r = svg.getBoundingClientRect(); show(i, r.left + X(i)/W*r.width, r.top + Y(cfg.ys[i])/H*r.height); } });
+  ov.addEventListener('focus', () => { const r = svg.getBoundingClientRect(); show(cur, r.left + X(cur)/W*r.width, r.top + Y(cfg.ys[cur])/H*r.height); });
+}
+
+function select(id, scroll){
+  state.sel = id; render();
+  if (scroll) document.getElementById('detail').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function renderDetail(list){
+  const el = document.getElementById('detail');
+  if (!list.length) { el.innerHTML = '<p class="sub">No suppliers match these filters.</p>'; return; }
+  let o = state.sel && list.find(x=>x.s.id===state.sel);
+  if (!o) o = [...list].sort((a,b)=>b.risk-a.risk)[0];
+  const s = o.s, idx = state.asOf;
+  const prev = idx-6 >= 0 ? (()=>{ const r = D.monthly[s.id]; let d=0,t=0; for (let i=Math.max(0,idx-11); i<=idx-6; i++){ d+=r[i][1]; t+=r[i][2]; } return d? t/d : null; })() : null;
+  const dOtif = prev!=null ? o.otif6 - prev : null;
+  const end = (()=>{ const [y,m] = D.months[idx].split('-').map(Number); return new Date(Date.UTC(y,m,0)).toISOString().slice(0,10); })();
+  const evs = D.events.filter(e=>e.sid===s.id && e.date<=end).sort((a,b)=>a.date<b.date?1:-1);
+  const contrib = DIMS.map(d => ({d, sc:o.d[d], w:D.weights[d], c:o.d[d]*D.weights[d]}));
+  let h = `<div class="dhead"><div><span class="k">Supplier detail, as of ${mLabel(D.months[idx])}</span><h2>${esc(s.name)}</h2>
+    <div class="dmeta">${esc(s.category)}, ${esc(s.region)}, ${esc(s.country)}. ${esc(s.tier)} supplier since ${s.since}${s.single==='Yes'?', single source':''}.</div></div>
+    <div class="dscore"><div class="big">${fmt1(o.risk)}<span class="of"> / 100</span></div><div><span class="badge">${dot(o.tier,10)}${o.tier} risk</span>, <span class="act ${o.action==='Mitigate now'?'hot':''}">${ACTION_TXT[o.action].toLowerCase()}</span></div></div></div>`;
+  const facts = [
+    ['Spend, last 12 months', fmtM(o.spend12), `${fmtPct(o.share,0)} of category`],
+    ['OTIF, last 6 months', fmtPct(o.otif6), dOtif==null?'':`${dOtif<0?'down':'up'} ${(Math.abs(dOtif)*100).toFixed(1)} pts`],
+    ['Defect PPM, last 6 months', fmt0(o.ppm6), ''],
+    ['Avg lead time', o.lead6.toFixed(1)+' days', ''],
+    ['Financial health', s.health+' / 100', ''],
+    ['Contract ends', mLabel(s.contractEnd), `${o.monthsLeft.toFixed(1)} months`],
+  ];
+  h += '<dl class="facts">' + facts.map(([l,v,m])=>`<div><dt>${l}</dt><dd>${v}${m?`<small>${m}</small>`:''}</dd></div>`).join('') + '</dl>';
+  h += `<div class="dgrid"><div><h3 class="sm">Where the score comes from</h3><div class="drv">`;
+  contrib.forEach(c => { h += `<span class="d">${c.d}<small>${Math.round(c.w*100)}% weight</small></span><span class="t" title="${esc(DIM_HOW[c.d])}"><div class="f" style="width:${Math.max(0.5,c.sc).toFixed(1)}%"></div></span><span class="n">${Math.round(c.sc)} <small>= ${c.c.toFixed(1)} pts</small></span>`; });
+  h += `</div></div><div><h3 class="sm">OTIF by month</h3><div id="ch-otif"></div></div><div><h3 class="sm">Risk score by month</h3><div id="ch-risk"></div></div></div>`;
+  h += `<h3 class="sm" style="margin:1.75rem 0 0">Disruption log</h3><ul class="events">` + (evs.length ? evs.map(e=>`<li><span class="dt">${e.date}</span><span class="ty">${esc(e.type)}</span><span class="sevpill">${dot(e.sev,8)}${e.sev}</span><span>${esc(e.desc)}</span></li>`).join('') : '<li><span class="none">Nothing logged for this supplier.</span></li>') + '</ul>';
+  el.innerHTML = h;
+  const r = D.monthly[s.id];
+  const otifYs = r.slice(0, idx+1).map(x=>x[2]/x[1]);
+  const xs = D.months.slice(0, idx+1).map(mShort);
+  const lo = Math.min(0.80, Math.floor(Math.min(...otifYs)*20)/20);
+  const tk = []; for (let v=lo; v<=1.0001; v+=0.05) tk.push(+v.toFixed(2));
+  lineChart(document.getElementById('ch-otif'), {xs, ys:otifYs, min:lo, max:1, ticks:tk, fmtTick:v=>Math.round(v*100)+'%', fmt:v=>fmtPct(v), name:'OTIF', color:C.accent,
+    refs:[{y:D.th.otif_best, label:'98% target'}], aria:`Monthly OTIF for ${s.name}`});
+  const rx = [], ry = [];
+  for (let i=FIRST_IDX; i<=idx; i++){ rx.push(mShort(D.months[i])); ry.push(CACHE[i].map[s.id].risk); }
+  lineChart(document.getElementById('ch-risk'), {xs:rx, ys:ry, min:0, max:100, ticks:[0,25,50,75,100], fmtTick:v=>v, fmt:fmt1, name:'risk score', color:C.high,
+    refs:[{y:D.th.high, label:'high'},{y:D.th.medium, label:'medium'}], aria:`Monthly risk score for ${s.name}`});
+}
+
+function renderWeights(){
+  let h = '<thead><tr><th class="l">Area</th><th class="l">Weight</th><th class="l">How it is scored</th></tr></thead><tbody>';
+  DIMS.forEach(d => h += `<tr style="cursor:default"><td class="l">${d}</td><td>${Math.round(D.weights[d]*100)}%</td><td class="l" style="white-space:normal">${DIM_HOW[d]}</td></tr>`);
+  document.getElementById('wt').innerHTML = h + '</tbody>';
+}
+function renderLegend(){
+  document.getElementById('tier-legend').innerHTML = ['Low','Medium','High'].map(t=>`<span>${dot(t)}${t} risk</span>`).join('');
+}
+
+function render(){
+  const all = CACHE[state.asOf].res;
+  const list = filtered(all);
+  document.getElementById('f-count').textContent = `Showing ${list.length} of ${all.length}`;
+  if (state.sel && !list.some(o=>o.s.id===state.sel)) state.sel = null;
+  renderSummary(list); renderScatter(list); renderCats(list); renderWatch(list); renderTable(list); renderDetail(list);
+}
+initFilters(); renderLegend(); renderWeights(); render();
+})();
+</script>
+<script src="site.js"></script>
+</body>
+</html>

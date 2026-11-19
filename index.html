@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" class="nojs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caden Hill · Sourcing, procurement and supply chain analytics</title>
+<meta name="description" content="Caden Hill's sourcing, procurement and supply chain analytics work: should-cost models, commodity index pricing, supplier risk and inventory policy for manufacturers. Finance and supply chain management at the University of Kansas, May 2027.">
+<link rel="preload" href="fonts/source-serif-4-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script>document.documentElement.className="js"</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Caden Hill · Sourcing and supply chain analytics">
+<meta property="og:description" content="Should-cost, supplier risk and inventory work for manufacturers, with the workbooks and code one click away.">
+<meta property="og:image" content="https://cadenhill072-sketch.github.io/portfolio-website/img/social-card.png">
+<meta property="og:url" content="https://cadenhill072-sketch.github.io/portfolio-website/">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="page">
+
+<header class="top">
+  <a class="home" href="index.html">Caden Hill</a>
+  <nav aria-label="Main">
+    <a href="#work">Work</a>
+    <a href="about.html">About</a>
+    <a href="files/caden-hill-resume.pdf">Resume (PDF)</a>
+  </nav>
+</header>
+
+<main id="main">
+
+<section class="intro">
+  <h1><span class="mk mk-name">Caden Hill</span></h1>
+  <p class="status">Finance and supply chain management at the University of Kansas, May 2027. Sourcing experience in packaging direct materials at General Mills and in freight operations at TA Dedicated.</p>
+  <p class="skills">Strategic sourcing, should-cost and negotiation prep, commodity index pricing, supplier risk, inventory policy. Python, SQL, Excel, Power BI, SAP.</p>
+  <ul class="links">
+    <li><a href="mailto:cadenhill072@gmail.com">cadenhill072@gmail.com</a></li>
+    <li><a href="https://www.linkedin.com/in/cadenhill/">LinkedIn</a></li>
+    <li><a href="files/caden-hill-resume.pdf">Resume (PDF)</a></li>
+  </ul>
+</section>
+
+<section class="section" id="work" aria-labelledby="work-h">
+  <h2 id="work-h">Work</h2>
+  <p class="small worknote">Projects 1 to 3 are independent projects I built out of curiosity about how AI tools can support sourcing decisions. Projects 4 and 5 come from my internships. <a href="about.html#how">How I build these</a>.</p>
+
+  <article class="feature lead">
+    <div class="copy">
+      <p class="no">No. 1</p>
+      <h3><a href="should-cost.html">Machined Bracket Should-Cost Model</a></h3>
+      <p>An Excel model of what a machined aluminum bracket should cost, built from LME aluminum, the Midwest premium, BLS wages and a machine rate I built from scratch. It lands at about <span class="mk">$34.20 delivered</span> against a made-up $38.90 quote, so the quote is about 12% high.</p>
+      <div class="versus" id="versus">
+        <div class="sw" role="group" aria-label="Price increase">
+          <button type="button" aria-pressed="true" data-k="ask">Supplier's ask</button>
+          <button type="button" aria-pressed="false" data-k="fair">What aluminum justifies</button>
+        </div>
+        <p id="versus-text" aria-live="polite">A flat 9% on the whole part because aluminum went up about 18%. That takes the price from $38.90 to $42.40.<span class="tag">How the increase usually shows up.</span></p>
+      </div>
+      <p>The model also writes the price as a contract formula, so the metal moves with the market and the conversion price stays fixed.</p>
+      <ul class="linkrow">
+        <li><a href="should-cost.html">Case study</a></li>
+        <li><a href="should-cost.html#tryit">Try the price slider</a></li>
+        <li><a href="files/should-cost/Machined_Bracket_Should_Cost_Model.xlsx">Workbook (.xlsx)</a></li>
+      </ul>
+    </div>
+    <figure class="shot">
+      <a class="frame" href="should-cost.html">
+        <img src="img/bracket-cost-build.png" width="940" height="624" alt="Cost build for one machined bracket. Bar stock is the biggest line at 40.3% of the price, then machining at 31.0% and supplier profit at 10.7%, with a chip credit that comes off the total. The should-cost price is $34.203 delivered.">
+        <svg class="mark" viewBox="0 0 940 624" preserveAspectRatio="none" aria-hidden="true"><path d="M168.6 30.7 Q172.1 33.0 174.5 35.6 Q176.1 38.3 175.6 41.2 Q175.0 44.1 170.8 46.6 Q168.6 49.3 165.4 52.0 Q159.9 53.8 154.6 55.6 Q147.9 56.0 141.8 57.1 Q135.5 57.0 129.0 57.0 Q123.0 56.3 118.2 54.5 Q113.1 53.0 108.9 51.0 Q104.4 48.9 102.5 46.2 Q103.0 43.2 101.5 40.3 Q104.4 37.6 105.6 34.7 Q110.0 32.3 114.4 30.2 Q118.1 27.5 124.6 26.5 Q130.7 25.4 137.0 23.9 Q143.7 23.9 149.9 25.0 Q156.7 25.2 161.8 27.0 Q167.0 28.7 170.1 31.2 Q174.8 33.3 176.3 36.2 Q177.9 39.1 177.4 42.1"/></svg>
+      </a>
+      <p class="pencil">Only about 40% of the price is metal. A flat 9% increase blamed on aluminum overcharges about $2.24 a part.</p>
+    </figure>
+  </article>
+
+  <article class="feature flip">
+    <div class="copy">
+      <p class="no">No. 2</p>
+      <h3><a href="supplier-risk.html">Industrial Supplier Risk Scorecard</a></h3>
+      <p>One view of where supply risk sits across 30 made-up suppliers for a manufacturer that builds motion control equipment, from castings and machined parts to semiconductors and motors. Each supplier is scored on delivery, quality, finances, concentration, geography and contract timing.</p>
+      <p>As of October 2026, 4 of the 30 are high risk and hold about <span class="mk">$29.6M, or 17%,</span> of the $174.7M in spend. I built the scoring in Excel, as DAX measures for Power BI, and in JavaScript for the web version.</p>
+      <ul class="linkrow">
+        <li><a href="supplier-risk.html">Interactive dashboard</a></li>
+        <li><a href="files/supplier-risk/Industrial_Supplier_Risk_Scorecard.xlsx">Workbook (.xlsx)</a></li>
+        <li><a href="files/supplier-risk/DAX_Measures.dax">DAX measures</a></li>
+      </ul>
+    </div>
+    <figure class="shot taped">
+      <a class="frame" href="supplier-risk.html">
+        <img src="img/supplier-risk-scatter.png" width="940" height="593" alt="Scatter plot of 30 suppliers by spend and risk score. Most sit low and to the left. Cerro Alto Precision stands alone in the top right, with high spend and a risk score near 78.">
+        <svg class="mark" viewBox="0 0 940 593" preserveAspectRatio="none" aria-hidden="true"><path d="M800.8 127.0 Q808.6 130.2 812.8 133.9 Q820.4 137.4 814.8 141.7 Q815.1 145.7 811.7 150.0 Q798.8 153.3 790.5 157.2 Q777.8 160.4 761.7 162.2 Q746.9 164.6 730.7 166.4 Q713.9 166.6 697.0 166.9 Q682.7 165.1 668.2 163.7 Q656.4 161.3 643.9 159.0 Q633.2 156.1 629.7 152.0 Q626.0 148.1 628.9 143.8 Q630.0 139.5 640.1 135.7 Q647.8 131.8 657.3 127.9 Q670.6 124.7 686.7 122.5 Q703.3 121.2 719.8 119.7 Q736.6 119.3 753.1 119.4 Q770.4 119.6 782.8 122.2 Q798.6 123.7 809.3 126.7 Q812.4 130.9 819.5 134.5 Q822.4 138.5 818.5 142.8"/></svg>
+      </a>
+      <p class="pencil">Cerro Alto Precision. Single source, on-time delivery down to 85.8%, and the contract runs out in about 4 months.</p>
+    </figure>
+  </article>
+</section>
+
+<section class="section" aria-labelledby="more-h">
+  <h2 id="more-h">More work</h2>
+  <ol class="ledger">
+    <li>
+      <span class="n">3</span>
+      <div>
+        <h3><a href="inventory-sim.html">Microcontroller Inventory Simulator</a></h3>
+        <p>A Monte Carlo simulation of how many chips a plant should keep on hand when one distributor's lead times bounce around. It shows a distributor who cuts lead time variation from 6 days to 3 is worth paying up to about 0.8% more per chip.</p>
+        <ul class="linkrow">
+          <li><a href="inventory-sim.html">Case study</a></li>
+          <li><a href="files/inventory-sim/inventory_sim.py">Python file</a></li>
+        </ul>
+      </div>
+    </li>
+    <li>
+      <span class="n">4</span>
+      <div>
+        <h3><a href="spend-tool.html">Packaging spend tool from my sourcing internship</a></h3>
+        <p>A reusable web tool I built in summer 2026 that puts packaging spend, drawings and technical reports in one view for sourcing and R&amp;D. It helped find over $1M in consolidation and margin savings opportunities. The page is rebuilt with invented data.</p>
+        <ul class="linkrow">
+          <li><a href="spend-tool.html">Case study and demo</a></li>
+        </ul>
+      </div>
+    </li>
+    <li>
+      <span class="n">5</span>
+      <div>
+        <h3><a href="bid-repository.html">Carrier bid repository</a></h3>
+        <p>A Python script from my 2025 operations internship that pulled 55 GB of freight bid files into one searchable dataset for Power BI. The page walks through the parsing approach and a rebuild of the dashboard with invented data.</p>
+        <ul class="linkrow">
+          <li><a href="bid-repository.html">Write-up and code</a></li>
+        </ul>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="section" aria-labelledby="out-h">
+  <h2 id="out-h">Outside work</h2>
+  <div class="prose">
+    <p>For my Eagle Scout project I led a group of Scouts building period yard games and a storage chest for the Woodbury Heritage Society's Heritage House. It took more than 80 hours, and the games were used at the Society's open house in August 2019. <a href="eagle-scout.html">Read the write-up</a>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <span>Caden Hill, 2026 <span class="updated" id="updated"></span></span>
+  <ul>
+    <li><a href="mailto:cadenhill072@gmail.com">Email</a></li>
+    <li><a href="https://www.linkedin.com/in/cadenhill/">LinkedIn</a></li>
+    <li><a href="files/caden-hill-resume.pdf">Resume</a></li>
+  </ul>
+  <p class="colophon">Plain HTML, CSS and a little JavaScript. No template or framework.</p>
+</footer>
+
+</div>
+<script src="site.js"></script>
+</body>
+</html>

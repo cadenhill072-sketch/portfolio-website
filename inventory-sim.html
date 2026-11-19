@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microcontroller Inventory Simulator · Caden Hill</title>
+<meta name="description" content="A Monte Carlo inventory simulation in Python for a single-sourced microcontroller that sets safety stock and prices what a more reliable distributor and a volume discount are worth.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="page">
+
+<header class="top">
+  <a class="home" href="index.html">Caden Hill</a>
+  <nav aria-label="Main">
+    <a href="index.html#work">Work</a>
+    <a href="about.html">About</a>
+    <a href="files/caden-hill-resume.pdf">Resume (PDF)</a>
+  </nav>
+</header>
+
+<main id="main">
+
+<div class="head">
+  <p class="kicker">Python notebook, November 2026</p>
+  <h1>Microcontroller Inventory Simulator</h1>
+  <p class="dek">How many chips a plant should keep on hand when one distributor's deliveries are hard to predict, and what a more reliable distributor is worth.</p>
+  <p class="datanote">The part and all numbers are made up for illustration. Built in Python with NumPy, pandas, SciPy and Matplotlib.</p>
+  <ul class="linkrow">
+    <li><a href="files/inventory-sim/inventory_sim.py">Python file</a></li>
+  </ul>
+</div>
+
+<div class="body">
+
+<section aria-labelledby="s1">
+  <h2 id="s1">The setup</h2>
+  <div class="prose">
+    <p>An industrial manufacturer buys a 32-bit microcontroller from one distributor for the control boards in its motor drives. How many chips the plant uses each day changes, how long the distributor takes to deliver changes, and if the plant runs out, the board line stops.</p>
+    <p>I wanted to figure out how many to keep on hand and how many to order at a time. Then I used that to answer two sourcing questions. How much is a more reliable supplier worth? And should the plant take a 3% discount for ordering 10 full reels at a time?</p>
+  </div>
+</section>
+
+<section aria-labelledby="s2">
+  <h2 id="s2">How it works</h2>
+  <div class="prose">
+    <p>I started with the textbook approach: EOQ, plus safety stock that accounts for both demand and lead time moving around. Then I wrote a Monte Carlo simulation of a reorder point system to see how the textbook numbers hold up.</p>
+    <p>It runs 400 simulated years for each policy, with random daily demand and random lead times, and adds up what each policy actually costs in holding inventory, placing orders and lost production.</p>
+  </div>
+  <figure class="exhibit wide">
+    <div class="frame"><img src="files/inventory-sim/charts/5_inventory_trace.png" width="1200" height="570" loading="lazy" alt="Line chart of chips on hand each day for one simulated year, saw-toothing between orders, with dashed lines for the reorder point and the safety stock."></div>
+    <figcaption><span class="ex">Exhibit 1.</span> One simulated year of chips on hand under the reorder point policy.</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="s3">
+  <h2 id="s3">What I found</h2>
+  <div class="prose">
+    <p>Most of the risk comes from the distributor's lead times. About 95% of the uncertainty the plant has to cover comes from deliveries showing up at different times, and only a small part comes from usage.</p>
+    <p>Because the chip only costs $6.50 and running out stops a build, the cheapest service level ended up very high, around 99.9%. Running at 95% instead costs about $74,600 more a year in shortages.</p>
+    <p>The textbook formula also promises more than it delivers, because late shipments are more common than early ones and a late PO holds up the one behind it. A 99.9% target only reached 99.5% in the simulation, which is about 5 times as many stockouts as planned.</p>
+  </div>
+  <div class="pair">
+  <figure class="exhibit">
+    <div class="frame"><img src="files/inventory-sim/charts/1_cost_vs_service_level.png" width="1200" height="690" loading="lazy" alt="Line chart of annual cost by service level target, split into holding, ordering and shortage cost. Shortage cost falls as the target rises and total cost bottoms out at a very high service level."></div>
+    <figcaption><span class="ex">Exhibit 2.</span> Annual cost by service level target, from 400 simulated years per policy.</figcaption>
+  </figure>
+  <figure class="exhibit">
+    <div class="frame"><img src="files/inventory-sim/charts/2_target_vs_achieved_service.png" width="1200" height="690" loading="lazy" alt="Line chart comparing the target service level with the simulated cycle service level and fill rate. At high targets the simulated service level falls short of the target."></div>
+    <figcaption><span class="ex">Exhibit 3.</span> Target service level against what the simulation actually hit.</figcaption>
+  </figure>
+  </div>
+</section>
+
+<section aria-labelledby="s4">
+  <h2 id="s4">What it means for sourcing</h2>
+  <div class="prose">
+    <p>If the distributor cut their lead time variation from 6 days to 3, the plant could carry about $68,800 less safety stock and save about $23,000 a year. So a distributor who delivers like that is worth paying up to about 0.8% more per chip.</p>
+  </div>
+  <figure class="exhibit narrow">
+    <div class="frame"><img src="files/inventory-sim/charts/3_lead_time_variability.png" width="1200" height="690" loading="lazy" alt="Bar chart of the safety stock value needed at different lead time standard deviations. The bars rise steadily as delivery times get less predictable, and the current distributor is highlighted."></div>
+    <figcaption><span class="ex">Exhibit 4.</span> Safety stock needed as lead time variation grows. The dark bar is the current distributor.</figcaption>
+  </figure>
+  <div class="prose">
+    <p>The 3% discount at 25,000 chips is also worth taking. It saves about $83,700 a year after the extra holding cost and adds about $32,500 of inventory on average, so the main thing I'd check first is that the part isn't heading toward end of life.</p>
+  </div>
+  <figure class="exhibit wide">
+    <div class="frame"><img src="files/inventory-sim/charts/4_quantity_discount.png" width="1200" height="690" loading="lazy" alt="Line chart of total annual cost by order size, with a drop in cost at the price break where the 3% discount starts."></div>
+    <figcaption><span class="ex">Exhibit 5.</span> Total annual cost by order size, with the price break for the discount.</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="files">
+  <h2 id="files">Notebook and code</h2>
+  <ul class="files">
+    <li><a href="files/inventory-sim/Microcontroller_Inventory_Simulator.ipynb">Microcontroller_Inventory_Simulator.ipynb</a><span>Jupyter notebook</span></li>
+    <li><a href="files/inventory-sim/inventory_sim.py">inventory_sim.py</a><span>Running it rebuilds the charts</span></li>
+    <li><a href="files/inventory-sim/requirements.txt">requirements.txt</a><span>Python packages</span></li>
+  </ul>
+</section>
+
+</div>
+</main>
+
+<footer class="foot">
+  <span>Caden Hill, 2026</span>
+  <ul>
+    <li><a href="mailto:cadenhill072@gmail.com">Email</a></li>
+    <li><a href="https://www.linkedin.com/in/cadenhill/">LinkedIn</a></li>
+    <li><a href="index.html">All work</a></li>
+  </ul>
+  <p class="colophon">Plain HTML, CSS and a little JavaScript. No template or framework.</p>
+</footer>
+
+</div>
+</body>
+</html>

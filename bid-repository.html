@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrier bid repository · Caden Hill</title>
+<meta name="description" content="A Python pipeline that turned 55 GB of freight bid files into one searchable dataset in Power BI, from an operations internship in 2025.">
+<link rel="stylesheet" href="style.css">
+<style>
+  .viewtabs{display:flex;flex-wrap:wrap;gap:.2rem 1.2rem;margin:0 0 .6rem;padding:0;border-bottom:1px solid var(--rule);}
+  .viewtabs button{font:inherit;font-size:.95rem;background:none;border:0;padding:.45rem 0;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  .viewtabs button[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--pencil);}
+  .viewtabs button:hover{color:var(--navy);}
+  #grid{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums;}
+  #grid th,#grid td{padding:.4rem .6rem;border-bottom:1px solid var(--rule);text-align:left;white-space:nowrap;}
+  #grid th{color:var(--navy);font-weight:600;border-bottom:1px solid var(--navy);}
+  #grid .num{text-align:right;}
+  #grid tfoot td{font-weight:600;border-top:1px solid var(--navy);border-bottom:0;}
+  pre.code .c{color:#6b7280;} pre.code .s{color:#7a3e1d;} pre.code .k{color:var(--navy);font-weight:600;} pre.code .f{color:#2c5d63;}
+</style>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="page">
+
+<header class="top">
+  <a class="home" href="index.html">Caden Hill</a>
+  <nav aria-label="Main">
+    <a href="index.html#work">Work</a>
+    <a href="about.html">About</a>
+    <a href="files/caden-hill-resume.pdf">Resume (PDF)</a>
+  </nav>
+</header>
+
+<main id="main">
+
+<div class="head">
+  <p class="kicker">Operations internship, summer 2025</p>
+  <h1>Carrier bid repository</h1>
+  <p class="dek">Five years of freight bid files sat in 55 GB of spreadsheets that nobody could search, so the sales team was quoting new business without the history.</p>
+  <p class="datanote">The bid files belong to my former employer, so none of the company's files appear here. The code below shows the parsing approach, and the dashboard is a rebuild with invented customers, lanes and volumes.</p>
+</div>
+
+<div class="body">
+
+<figure class="exhibit" style="max-width:46rem;margin-top:2rem">
+  <div class="fig"><svg viewBox="0 0 640 400" role="img" aria-label="Bid workbooks with different header spellings and header rows, detected and mapped into one searchable table of lanes">
+  <g transform="translate(40 58) rotate(-6)"><rect x=".5" y=".5" width="168" height="116" rx="4" class="d-paper d-faint"/><rect x="1" y="1" width="167" height="21" class="d-panel"/><text x="10" y="15.5" class="d-t d-xs d-m">ORIGIN_CITY</text><line x1="0" y1="46" x2="168" y2="46" class="d-rule"/><line x1="0" y1="62" x2="168" y2="62" class="d-rule"/><line x1="0" y1="78" x2="168" y2="78" class="d-rule"/><line x1="0" y1="94" x2="168" y2="94" class="d-rule"/><line x1="0" y1="110" x2="168" y2="110" class="d-rule"/><line x1="84" y1="22" x2="84" y2="116" class="d-rule"/></g>
+  <g transform="translate(70 92) rotate(4)"><rect x=".5" y=".5" width="168" height="116" rx="4" class="d-paper d-faint"/><rect x="1" y="1" width="167" height="21" class="d-panel"/><text x="10" y="15.5" class="d-t d-xs d-m">City (Origin)</text><line x1="0" y1="46" x2="168" y2="46" class="d-rule"/><line x1="0" y1="62" x2="168" y2="62" class="d-rule"/><line x1="0" y1="78" x2="168" y2="78" class="d-rule"/><line x1="0" y1="94" x2="168" y2="94" class="d-rule"/><line x1="0" y1="110" x2="168" y2="110" class="d-rule"/><line x1="92" y1="22" x2="92" y2="116" class="d-rule"/></g>
+  <g transform="translate(36 146)">
+    <rect x=".5" y=".5" width="200" height="206" rx="5" class="d-paper d-line"/>
+    <rect x="14" y="14" width="96" height="6" rx="3" class="d-ink2" opacity=".45"/>
+    <line x1="14" y1="34.5" x2="186" y2="34.5" class="d-faint" stroke-dasharray="3 4"/>
+    <rect x="1" y="52.5" width="199" height="24" class="d-panel"/>
+    <rect x="3" y="54.5" width="195" height="20" rx="2" fill="none" class="d-route" stroke-width="1.75"/>
+    <text x="12" y="68.5" class="d-t d-xs d-h">Org City</text>
+    <text x="82" y="68.5" class="d-t d-xs d-h">Dst City</text>
+    <text x="152" y="68.5" class="d-t d-xs d-h">Loads</text>
+    <line x1="74.5" y1="53" x2="74.5" y2="206" class="d-rule"/>
+    <line x1="144.5" y1="53" x2="144.5" y2="206" class="d-rule"/>
+    <line x1="1" y1="96.5" x2="200" y2="96.5" class="d-rule"/>
+    <line x1="1" y1="116.5" x2="200" y2="116.5" class="d-rule"/>
+    <line x1="1" y1="136.5" x2="200" y2="136.5" class="d-rule"/>
+    <line x1="1" y1="156.5" x2="200" y2="156.5" class="d-rule"/>
+    <line x1="1" y1="176.5" x2="200" y2="176.5" class="d-rule"/>
+    <rect x="12" y="83" width="48" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="84" y="83" width="40" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="166" y="83" width="22" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="12" y="103" width="38" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="84" y="103" width="52" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="172" y="103" width="16" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="12" y="123" width="54" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="84" y="123" width="34" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="168" y="123" width="20" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="12" y="143" width="30" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="84" y="143" width="46" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="164" y="143" width="24" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="12" y="163" width="44" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="84" y="163" width="38" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="174" y="163" width="14" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="12" y="183" width="36" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="84" y="183" width="50" height="5" rx="2.5" class="d-ink2" opacity=".35"/><rect x="166" y="183" width="22" height="5" rx="2.5" class="d-ink2" opacity=".35"/>
+  </g>
+  <text x="36" y="378" class="d-t d-xs d-m">header found on row 4, not row 1</text>
+
+  <path d="M211 80 C266 80 274 210 310 210" class="flow"/>
+  <path d="M236 125 C268 125 282 210 310 210" class="flow"/>
+  <path d="M237 210 L310 210" class="flow"/>
+  <path d="M322 210 L356 210" class="flow"/>
+  <circle cx="316" cy="210" r="7" class="d-routef"/>
+  <text x="316" y="244" text-anchor="middle" class="d-t d-xs d-m">mapped to</text>
+  <text x="316" y="259" text-anchor="middle" class="d-t d-xs d-m">one schema</text>
+
+  <rect x="356.5" y="44.5" width="256" height="30" rx="15" class="d-paper d-faint"/>
+  <circle cx="376" cy="58.5" r="5.5" fill="none" class="d-faint"/>
+  <line x1="380" y1="62.5" x2="384" y2="66.5" class="d-faint"/>
+  <text x="392" y="64" class="d-t d-xs d-m">Search lanes</text>
+  <rect x="356.5" y="94.5" width="256" height="226" rx="6" class="d-paper d-line"/>
+  <rect x="357" y="95" width="255" height="30" rx="5.5" class="d-ink"/>
+  <rect x="357" y="110" width="255" height="15" class="d-ink"/>
+  <text x="368" y="115" class="d-t d-xs d-h d-paper-t">origin_city</text>
+  <text x="466" y="115" class="d-t d-xs d-h d-paper-t">dest_city</text>
+  <text x="598" y="115" text-anchor="end" class="d-t d-xs d-h d-paper-t">loads</text>
+  <text x="368" y="150" class="d-t d-xs">Lenexa, KS</text><text x="466" y="150" class="d-t d-xs">Garland, TX</text><text x="598" y="150" text-anchor="end" class="d-t d-xs">214</text><line x1="357" y1="159.5" x2="611" y2="159.5" class="d-rule"/>
+  <text x="368" y="177" class="d-t d-xs">Olathe, KS</text><text x="466" y="177" class="d-t d-xs">Aurora, CO</text><text x="598" y="177" text-anchor="end" class="d-t d-xs">98</text><line x1="357" y1="186.5" x2="611" y2="186.5" class="d-rule"/>
+  <text x="368" y="204" class="d-t d-xs">Joplin, MO</text><text x="466" y="204" class="d-t d-xs">Southaven, MS</text><text x="598" y="204" text-anchor="end" class="d-t d-xs">151</text><line x1="357" y1="213.5" x2="611" y2="213.5" class="d-rule"/>
+  <text x="368" y="231" class="d-t d-xs">Salina, KS</text><text x="466" y="231" class="d-t d-xs">Omaha, NE</text><text x="598" y="231" text-anchor="end" class="d-t d-xs">63</text><line x1="357" y1="240.5" x2="611" y2="240.5" class="d-rule"/>
+  <text x="368" y="258" class="d-t d-xs">Topeka, KS</text><text x="466" y="258" class="d-t d-xs">Tulsa, OK</text><text x="598" y="258" text-anchor="end" class="d-t d-xs">120</text><line x1="357" y1="267.5" x2="611" y2="267.5" class="d-rule"/>
+  <text x="368" y="285" class="d-t d-xs">Wichita, KS</text><text x="466" y="285" class="d-t d-xs">Irving, TX</text><text x="598" y="285" text-anchor="end" class="d-t d-xs">77</text><line x1="357" y1="294.5" x2="611" y2="294.5" class="d-rule"/>
+  <text x="356" y="348" class="d-t d-xs d-m">one table, every bid</text>
+</svg></div>
+  <figcaption><span class="ex">Exhibit 1.</span> Workbooks with different header spellings and header rows, mapped into one table. Illustration with invented lanes, not a screenshot.</figcaption>
+</figure>
+
+<section aria-labelledby="s1">
+  <h2 id="s1">The problem</h2>
+  <div class="prose">
+    <p>Every customer bid arrives as its own workbook, with its own template, column names and number of header rows before the data starts. Once a bid is won or lost, the file goes into a folder and nobody opens it again.</p>
+    <p>That's a problem when a rep is on a call and wants to know if the company has ever run a lane before, and at what volume. Answering meant opening files one at a time.</p>
+  </div>
+</section>
+
+<section aria-labelledby="s2">
+  <h2 id="s2">How I worked it</h2>
+  <div class="prose">
+    <p>I started by asking reps what they needed answered on a call, which came down to lane, customer, volume, miles and year. I chose to parse and normalize the files as they were instead of asking anyone to change how they file bids. Then I did the cleanup, built the Power BI model, sat with reps while they tried it, and fixed the views. I presented it to leadership at the end of the internship and documented the pipeline so new bid files could be added after I left.</p>
+  </div>
+</section>
+
+<section aria-labelledby="s3">
+  <h2 id="s3">The parsing</h2>
+  <div class="prose">
+    <p>Most of the work was the parsing. No two bid templates agreed on what to call an origin city, and the header row was rarely the first row. Most files open with a title block, a logo and a blank line, so a script that assumes the first row is the header gives you bad data across thousands of sheets.</p>
+    <p>So the script scans the first ten rows of every sheet, scores each row on how many known column spellings it has, and treats the best one as the header. The spellings live in a lookup table, so adding a new bid format means adding a spelling. Sheets that can't be matched get reported instead of dropped.</p>
+    <p>This is the core of the parser:</p>
+  </div>
+  <pre class="code"><code><span class="c"># Canonical field -&gt; the header spellings seen in the wild.</span>
+SCHEMA = {
+    <span class="s">"origin_city"</span>:  [<span class="s">"origin city"</span>, <span class="s">"org city"</span>, <span class="s">"city (origin)"</span>],
+    <span class="s">"origin_state"</span>: [<span class="s">"origin state"</span>, <span class="s">"org state"</span>, <span class="s">"origin st"</span>],
+    <span class="s">"origin_zip"</span>:   [<span class="s">"origin zip"</span>, <span class="s">"org zip"</span>, <span class="s">"origin postal code"</span>],
+    <span class="s">"dest_city"</span>:    [<span class="s">"destination city"</span>, <span class="s">"dest city"</span>, <span class="s">"dst city"</span>],
+    <span class="s">"dest_state"</span>:   [<span class="s">"dest state"</span>, <span class="s">"destination_state"</span>, <span class="s">"dst state"</span>],
+    <span class="s">"dest_zip"</span>:     [<span class="s">"dest zip"</span>, <span class="s">"destination_zip"</span>, <span class="s">"dst zip"</span>],
+}
+
+
+<span class="k">def</span> <span class="f">find_header_row</span>(frame):
+    <span class="s">"""Return the index of the row that looks most like a header, or None.
+
+    A row qualifies when it contains recognizable spellings for at least
+    half the canonical fields. Scanning beats assuming header=0: these
+    workbooks routinely open with a title, a logo row, and a blank line.
+    """</span>
+    best_index, best_score = <span class="k">None</span>, 0
+    <span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="f">min</span>(10, <span class="f">len</span>(frame))):
+        cells = {<span class="f">str</span>(v).<span class="f">strip</span>().<span class="f">lower</span>() <span class="k">for</span> v <span class="k">in</span> frame.iloc[i].values}
+        score = <span class="f">sum</span>(1 <span class="k">for</span> spellings <span class="k">in</span> SCHEMA.<span class="f">values</span>()
+                    <span class="k">if</span> cells &amp; <span class="f">set</span>(spellings))
+        <span class="k">if</span> score &gt; best_score:
+            best_index, best_score = i, score
+    <span class="k">return</span> best_index <span class="k">if</span> best_score &gt;= <span class="f">len</span>(SCHEMA) / 2 <span class="k">else</span> <span class="k">None</span>
+
+
+<span class="k">def</span> <span class="f">extract_sheet</span>(frame):
+    <span class="s">"""Project one sheet onto the canonical schema, filling absent fields."""</span>
+    lookup = {<span class="f">str</span>(c).<span class="f">strip</span>().<span class="f">lower</span>(): c <span class="k">for</span> c <span class="k">in</span> frame.columns}
+    out = pd.<span class="f">DataFrame</span>(index=frame.index)
+    <span class="k">for</span> field, spellings <span class="k">in</span> SCHEMA.<span class="f">items</span>():
+        match = <span class="f">next</span>((lookup[s] <span class="k">for</span> s <span class="k">in</span> spellings <span class="k">if</span> s <span class="k">in</span> lookup), <span class="k">None</span>)
+        out[field] = frame[match] <span class="k">if</span> match <span class="k">else</span> pd.NA
+    <span class="k">return</span> out</code></pre>
+  <p class="small prose">Python 3 with pandas. The full pipeline walked a directory, tagged every row with its source file and sheet, and reported unmatched sheets instead of dropping them.</p>
+</section>
+
+<section aria-labelledby="s4">
+  <h2 id="s4">What reps got</h2>
+  <div class="prose">
+    <p>Three views, because reps were asking three different questions. This is a rebuild with invented data, and the layout and clicks work the way the real one did.</p>
+  </div>
+  <figure class="exhibit">
+    <div class="viewtabs" role="tablist" aria-label="Dashboard view">
+      <button role="tab" aria-selected="true" data-view="market">By market</button>
+      <button role="tab" aria-selected="false" data-view="lane">Lane lookup</button>
+      <button role="tab" aria-selected="false" data-view="customer">Customer lookup</button>
+    </div>
+    <div class="scroll">
+      <table id="grid"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+    </div>
+    <figcaption><span class="ex">Rebuild with invented data.</span> Reps filter by origin and destination market, pricing works from the customer roll-up, and leadership looks at the totals. It's the same model under all three.</figcaption>
+  </figure>
+  <div class="prose">
+    <p>The first version was one table with every field and a pile of slicers. People couldn't find what they came for, so I split it by the question being asked, and that's the version that got used.</p>
+  </div>
+</section>
+
+<section aria-labelledby="s5">
+  <h2 id="s5">The second piece</h2>
+  <div class="prose">
+    <p>Once bid history was searchable, I used the same pattern going forward. Carriers get a standard bid template by email, Power Query pulls the responses in and normalizes them, and new carrier bids file into a Power BI report that pricing and senior leadership use for carrier selection. Getting carriers to send bids back in one format was easier than parsing whatever showed up.</p>
+  </div>
+</section>
+
+<section aria-labelledby="s6">
+  <h2 id="s6">What I took from it</h2>
+  <div class="prose">
+    <p>The dashboard was the quick part, and the cleanup took most of the summer. I also learned to test a tool by watching someone use it, since asking people if it looks good doesn't tell you if they can find anything.</p>
+  </div>
+</section>
+
+</div>
+</main>
+
+<footer class="foot">
+  <span>Caden Hill, 2026</span>
+  <ul>
+    <li><a href="mailto:cadenhill072@gmail.com">Email</a></li>
+    <li><a href="https://www.linkedin.com/in/cadenhill/">LinkedIn</a></li>
+    <li><a href="index.html">All work</a></li>
+  </ul>
+  <p class="colophon">Plain HTML, CSS and a little JavaScript. No template or framework.</p>
+</footer>
+
+</div>
+
+<script>
+const DATA = {
+  market: {
+    cols: ["Customer", "O-Market", "O-City, State", "D-Market", "D-City, State", "Miles", "Volume", "Year"],
+    num: [5, 6, 7],
+    rows: [
+      ["Northwind Foods", "Chicago, IL", "Elgin, IL", "Jacksonville, FL", "Jacksonville, FL", "1,058", "292", "2021"],
+      ["Harbor Home Supply", "Chicago, IL", "Joliet, IL", "Jacksonville, FL", "Jacksonville, FL", "1,052", "271", "2021"],
+      ["Redline Beverage", "Chicago, IL", "Chicago, IL", "Jacksonville, FL", "Gainesville, FL", "1,076", "244", "2020"],
+      ["Summit Paper Co", "Chicago, IL", "Aurora, IL", "Jacksonville, FL", "Jacksonville, FL", "1,081", "198", "2021"],
+      ["Lakeshore Dairy", "Chicago, IL", "Naperville, IL", "Jacksonville, FL", "Alachua, FL", "1,044", "163", "2019"],
+      ["Fairview Brands", "Chicago, IL", "Chicago, IL", "Jacksonville, FL", "Jacksonville, FL", "1,067", "121", "2021"],
+      ["Ironwood Retail", "Chicago, IL", "Cicero, IL", "Jacksonville, FL", "Gainesville, FL", "1,090", "94", "2018"],
+      ["Cascade Grocers", "Chicago, IL", "Bolingbrook, IL", "Jacksonville, FL", "Jacksonville, FL", "1,072", "78", "2020"]
+    ],
+    foot: ["Total", "", "", "", "", "48,206", "1,461", ""]
+  },
+  lane: {
+    cols: ["Lane", "Lane count", "Volume", "Miles"],
+    num: [1, 2, 3],
+    rows: [
+      ["Aurora, IL &rarr; Jacksonville, FL", "6", "412", "6,486"],
+      ["Bolingbrook, IL &rarr; Gainesville, FL", "4", "188", "4,288"],
+      ["Chicago, IL &rarr; Alachua, FL", "3", "141", "3,132"],
+      ["Cicero, IL &rarr; Jacksonville, FL", "3", "97", "3,270"],
+      ["Elgin, IL &rarr; Jacksonville, FL", "5", "292", "5,290"],
+      ["Joliet, IL &rarr; Jacksonville, FL", "2", "271", "2,104"],
+      ["Naperville, IL &rarr; Gainesville, FL", "2", "163", "2,088"],
+      ["Waukegan, IL &rarr; Ocala, FL", "1", "34", "1,112"]
+    ],
+    foot: ["Total", "26", "1,598", "27,770"]
+  },
+  customer: {
+    cols: ["Customer", "Lane count", "Volume", "Miles"],
+    num: [1, 2, 3],
+    rows: [
+      ["Harbor Home Supply", "4,061", "182,318", "4,203,364"],
+      ["Northwind Foods", "3,092", "155,855", "3,882,960"],
+      ["Redline Beverage", "2,078", "141,096", "2,926,763"],
+      ["Ironwood Retail", "1,719", "92,617", "2,372,795"],
+      ["Cascade Grocers", "1,614", "94,878", "1,953,868"],
+      ["Summit Paper Co", "1,163", "88,052", "1,325,059"],
+      ["Fairview Brands", "1,045", "77,134", "1,479,359"],
+      ["Lakeshore Dairy", "802", "71,159", "946,296"]
+    ],
+    foot: ["Total", "15,574", "903,109", "19,090,464"]
+  }
+};
+
+const grid = document.getElementById("grid");
+
+function render(view) {
+  const d = DATA[view];
+  grid.tHead.innerHTML = "<tr>" + d.cols
+    .map((c, i) => `<th class="${d.num.includes(i) ? "num" : ""}">${c}</th>`).join("") + "</tr>";
+  grid.tBodies[0].innerHTML = d.rows
+    .map(r => "<tr>" + r.map((c, i) => `<td class="${d.num.includes(i) ? "num" : ""}">${c}</td>`).join("") + "</tr>")
+    .join("");
+  grid.tFoot.innerHTML = "<tr>" + d.foot
+    .map((c, i) => `<td class="${d.num.includes(i) ? "num" : ""}">${c}</td>`).join("") + "</tr>";
+}
+
+document.querySelectorAll(".viewtabs button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".viewtabs button")
+      .forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+    render(btn.dataset.view);
+  });
+});
+
+render("market");
+</script>
+<script src="site.js"></script>
+</body>
+</html>

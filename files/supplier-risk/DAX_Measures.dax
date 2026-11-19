@@ -1,0 +1,214 @@
+// Industrial Supplier Risk Scorecard - DAX measures
+// Relationships: Suppliers to Monthly and Risk_Events on SupplierID,
+// Date to Monthly[MonthStart] and Risk_Events[EventDate]. Weights isn't related to anything.
+// Same cutoffs and weights as the Excel Scorecard tab.
+
+
+// --- date table (new table, then mark it as the date table)
+Date =
+VAR FirstDay = MIN ( Monthly[MonthStart] )
+VAR LastDay  = EOMONTH ( MAX ( Monthly[MonthStart] ), 0 )
+RETURN
+    ADDCOLUMNS (
+        CALENDAR ( FirstDay, LastDay ),
+        "Year", YEAR ( [Date] ),
+        "Month Start", DATE ( YEAR ( [Date] ), MONTH ( [Date] ), 1 ),
+        "Month", FORMAT ( [Date], "mmm yyyy" ),
+        "Year-Month", FORMAT ( [Date], "yyyy-mm" )
+    )
+// sort Month by Year-Month
+
+
+// --- settings (kept in a blank Measures table)
+Th OTIF Best = 0.98
+Th OTIF Worst = 0.85
+Th PPM Good = 500
+Th PPM Bad = 5000
+Th Single Source Pts = 60
+Th Share Cap = 0.50
+Th Geo Weight = 0.60
+Th Severity Cap = 8
+Th Contract Safe = 18
+Th Contract Urgent = 3
+Th High = 50
+Th Medium = 30
+Th Action Risk = 35
+Th Action Spend = 5000000
+
+W Delivery      = LOOKUPVALUE ( Weights[Weight], Weights[Dimension], "Delivery" )
+W Quality       = LOOKUPVALUE ( Weights[Weight], Weights[Dimension], "Quality" )
+W Financial     = LOOKUPVALUE ( Weights[Weight], Weights[Dimension], "Financial" )
+W Concentration = LOOKUPVALUE ( Weights[Weight], Weights[Dimension], "Concentration" )
+W Geography     = LOOKUPVALUE ( Weights[Weight], Weights[Dimension], "Geography & Disruption" )
+W Contract      = LOOKUPVALUE ( Weights[Weight], Weights[Dimension], "Contract" )
+
+
+// --- as-of month
+// No date filter = latest month in the data (Oct 2026).
+// A month slicer (or a month on a chart axis) re-scores as of that month.
+As Of Month =
+VAR SelEnd = MAX ( 'Date'[Date] )
+RETURN
+    CALCULATE (
+        MAX ( Monthly[MonthStart] ),
+        REMOVEFILTERS ( 'Date' ),
+        Monthly[MonthStart] <= SelEnd
+    )
+
+As Of Month End = EOMONTH ( [As Of Month], 0 )
+
+
+// --- base measures
+Spend = SUM ( Monthly[Spend] )
+Deliveries = SUM ( Monthly[Deliveries] )
+OTIF Deliveries = SUM ( Monthly[OTIF_Deliveries] )
+OTIF % = DIVIDE ( [OTIF Deliveries], [Deliveries] )
+Defect PPM = DIVIDE ( SUM ( Monthly[DefectUnits] ), SUM ( Monthly[UnitsReceived] ) ) * 1000000
+Avg Lead Time (days) = AVERAGE ( Monthly[AvgLeadTimeDays] )
+Event Count = COUNTROWS ( Risk_Events )
+
+
+// --- trailing-window measures
+Spend 12M =
+VAR EndDate = [As Of Month End]
+RETURN
+    CALCULATE ( [Spend], DATESINPERIOD ( 'Date'[Date], EndDate, -12, MONTH ) )
+
+OTIF 6M =
+VAR EndDate = [As Of Month End]
+RETURN
+    CALCULATE ( [OTIF %], DATESINPERIOD ( 'Date'[Date], EndDate, -6, MONTH ) )
+
+OTIF 6M Prior =
+VAR EndDate = EOMONTH ( [As Of Month], -6 )
+RETURN
+    CALCULATE ( [OTIF %], DATESINPERIOD ( 'Date'[Date], EndDate, -6, MONTH ) )
+
+OTIF 6M Change = [OTIF 6M] - [OTIF 6M Prior]
+
+Defect PPM 6M =
+VAR EndDate = [As Of Month End]
+RETURN
+    CALCULATE ( [Defect PPM], DATESINPERIOD ( 'Date'[Date], EndDate, -6, MONTH ) )
+
+Lead Time 6M =
+VAR EndDate = [As Of Month End]
+RETURN
+    CALCULATE ( [Avg Lead Time (days)], DATESINPERIOD ( 'Date'[Date], EndDate, -6, MONTH ) )
+
+Event Points 12M =
+VAR EndDate = [As Of Month End]
+RETURN
+    CALCULATE ( SUM ( Risk_Events[SeverityPoints] ), DATESINPERIOD ( 'Date'[Date], EndDate, -12, MONTH ) ) + 0
+
+Category Spend 12M =
+VAR Cat = SELECTEDVALUE ( Suppliers[Category] )
+RETURN
+    CALCULATE ( [Spend 12M], REMOVEFILTERS ( Suppliers ), Suppliers[Category] = Cat )
+
+Category Share 12M = DIVIDE ( [Spend 12M], [Category Spend 12M] )
+
+
+// --- dimension scores
+Score Delivery =
+VAR o = [OTIF 6M]
+RETURN
+    IF ( NOT ISBLANK ( o ),
+        MIN ( 1, MAX ( 0, DIVIDE ( [Th OTIF Best] - o, [Th OTIF Best] - [Th OTIF Worst] ) ) ) * 100 )
+
+Score Quality =
+VAR p = [Defect PPM 6M]
+RETURN
+    IF ( NOT ISBLANK ( p ),
+        MIN ( 1, MAX ( 0, DIVIDE ( p - [Th PPM Good], [Th PPM Bad] - [Th PPM Good] ) ) ) * 100 )
+
+Score Financial =
+IF ( HASONEVALUE ( Suppliers[SupplierID] ),
+    100 - SELECTEDVALUE ( Suppliers[FinancialHealth] ) )
+
+Score Concentration =
+IF ( HASONEVALUE ( Suppliers[SupplierID] ),
+    VAR SinglePts  = IF ( SELECTEDVALUE ( Suppliers[SingleSource] ) = "Yes", [Th Single Source Pts], 0 )
+    VAR SharePts   = MIN ( 1, DIVIDE ( [Category Share 12M], [Th Share Cap] ) ) * ( 100 - [Th Single Source Pts] )
+    RETURN SinglePts + SharePts )
+
+Score Geography & Disruption =
+IF ( HASONEVALUE ( Suppliers[SupplierID] ),
+    [Th Geo Weight] * SELECTEDVALUE ( Suppliers[GeoRiskIndex] )
+        + ( 1 - [Th Geo Weight] ) * MIN ( 1, DIVIDE ( [Event Points 12M], [Th Severity Cap] ) ) * 100 )
+
+Contract Months Left =
+IF ( HASONEVALUE ( Suppliers[SupplierID] ),
+    VAR EndD    = SELECTEDVALUE ( Suppliers[ContractEnd] )
+    VAR AsOfEnd = [As Of Month End]
+    RETURN DATEDIFF ( AsOfEnd, EndD, DAY ) / 30.4375 )
+
+Score Contract =
+VAR m = [Contract Months Left]
+RETURN
+    IF ( NOT ISBLANK ( m ),
+        MIN ( 1, MAX ( 0, DIVIDE ( [Th Contract Safe] - m, [Th Contract Safe] - [Th Contract Urgent] ) ) ) * 100 )
+
+
+// --- composite risk score
+Risk Score (Supplier) =
+IF ( HASONEVALUE ( Suppliers[SupplierID] ),
+    [Score Delivery] * [W Delivery]
+        + [Score Quality] * [W Quality]
+        + [Score Financial] * [W Financial]
+        + [Score Concentration] * [W Concentration]
+        + [Score Geography & Disruption] * [W Geography]
+        + [Score Contract] * [W Contract] )
+
+// for one supplier it's their score, for a category or total it's spend-weighted
+Risk Score =
+VAR T =
+    ADDCOLUMNS (
+        VALUES ( Suppliers[SupplierID] ),
+        "@Risk", [Risk Score (Supplier)],
+        "@Spend", [Spend 12M]
+    )
+RETURN
+    IF ( HASONEVALUE ( Suppliers[SupplierID] ),
+        [Risk Score (Supplier)],
+        DIVIDE ( SUMX ( T, [@Risk] * [@Spend] ), SUMX ( T, [@Spend] ) ) )
+
+Risk Tier =
+VAR s = [Risk Score]
+RETURN
+    IF ( NOT ISBLANK ( s ),
+        SWITCH ( TRUE (), s >= [Th High], "High", s >= [Th Medium], "Medium", "Low" ) )
+
+Action =
+IF ( HASONEVALUE ( Suppliers[SupplierID] ),
+    VAR r  = [Risk Score (Supplier)]
+    VAR sp = [Spend 12M]
+    RETURN
+        IF ( r >= [Th Action Risk],
+            IF ( sp >= [Th Action Spend], "Mitigate now", "Qualify alternate" ),
+            IF ( sp >= [Th Action Spend], "Partner & leverage", "Routine" ) ) )
+
+Risk Rank =
+IF ( HASONEVALUE ( Suppliers[SupplierID] ),
+    RANKX ( ALLSELECTED ( Suppliers[SupplierID] ), [Risk Score (Supplier)], , DESC, DENSE ) )
+
+// color for conditional formatting
+Risk Color =
+SWITCH ( [Risk Tier], "High", "#D1453B", "Medium", "#E8A33D", "Low", "#8A8C90" )
+
+
+// --- kpi cards
+High Risk Suppliers =
+COUNTROWS ( FILTER ( VALUES ( Suppliers[SupplierID] ), [Risk Score (Supplier)] >= [Th High] ) ) + 0
+
+Spend at High Risk =
+SUMX ( FILTER ( VALUES ( Suppliers[SupplierID] ), [Risk Score (Supplier)] >= [Th High] ), [Spend 12M] )
+
+% Spend at High Risk = DIVIDE ( [Spend at High Risk], [Spend 12M] )
+
+Single-Source Spend 12M = CALCULATE ( [Spend 12M], Suppliers[SingleSource] = "Yes" )
+
+Suppliers to Mitigate =
+COUNTROWS ( FILTER ( VALUES ( Suppliers[SupplierID] ), [Action] = "Mitigate now" ) ) + 0
+
+As Of Label = "As of " & FORMAT ( [As Of Month], "mmm yyyy" )

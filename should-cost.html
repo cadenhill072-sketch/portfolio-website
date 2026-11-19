@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machined Bracket Should-Cost Model · Caden Hill</title>
+<meta name="description" content="An Excel should-cost model for a machined aluminum bracket built from LME aluminum, the Midwest premium and BLS wages, with a quote comparison, an index-based contract formula and a price increase check.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="page">
+
+<header class="top">
+  <a class="home" href="index.html">Caden Hill</a>
+  <nav aria-label="Main">
+    <a href="index.html#work">Work</a>
+    <a href="about.html">About</a>
+    <a href="files/caden-hill-resume.pdf">Resume (PDF)</a>
+  </nav>
+</header>
+
+<main id="main">
+
+<div class="head">
+  <p class="kicker">Excel model, November 2026</p>
+  <h1>Machined Bracket Should-Cost Model</h1>
+  <p class="dek">What a machined aluminum bracket should cost a fair supplier to make and deliver, and how to check a price increase blamed on aluminum.</p>
+  <p class="datanote">Built from public market data. The part, the supplier quote and the price increase are made up, and there's no employer or supplier data in it.</p>
+  <ul class="linkrow">
+    <li><a href="files/should-cost/Machined_Bracket_Should_Cost_Model.xlsx">Download the workbook (.xlsx)</a></li>
+    <li><a href="#tryit">Try the price slider</a></li>
+  </ul>
+</div>
+
+<div class="body">
+
+<section aria-labelledby="s1">
+  <h2 id="s1">Why I built it</h2>
+  <div class="prose">
+    <p>A question comes up all the time in sourcing: how do you know whether a supplier's price is actually fair? A should-cost model works backwards from what goes into a part and what it takes to make it, so you walk into a negotiation with your own number instead of just reacting to the quote.</p>
+    <p>I picked a machined aluminum part because that kind of part shows up everywhere in aerospace, defense and auto supply chains, and because the 2025 tariffs made aluminum one of the most talked about costs in manufacturing.</p>
+  </div>
+</section>
+
+<section aria-labelledby="s2">
+  <h2 id="s2">How it works</h2>
+  <div class="prose">
+    <p>The part is a made-up actuator mounting bracket, about 6 x 3 x 2 inches, machined from 6061-T6511 bar on a 3-axis machining center and then clear anodized.</p>
+    <p>The model starts with the metal: the LME aluminum price plus the US Midwest premium, plus what it costs to turn that into a 6061 bar and get it cut and delivered. About 3.715 lb of bar goes into each part and only 1.18 lb ships, so the other 2.535 lb comes back as chips that the shop sells for scrap.</p>
+    <p>Then it builds an hourly machine rate from scratch, using depreciation, maintenance, power, floor space, and national operator and machinist wages from BLS with benefits added. The run rate comes to $53.97 an hour at cost and $66.49 once the supplier's overhead and profit are on it, which lands inside the range shops publish for 3-axis work, so the machining part of the number holds up. Each part takes 11.8 minutes on the machine.</p>
+    <p>After that it adds setup, deburr, tooling, inspection, anodize, packing, freight, and the supplier's overhead and profit. Every input sits on one tab with a note on where it came from.</p>
+  </div>
+</section>
+
+<section aria-labelledby="s3">
+  <h2 id="s3">What one bracket should cost</h2>
+  <div class="prose">
+    <p>With November's aluminum prices the bracket should cost about $34.20 delivered. The bar is only about 40% of the price, shown in red below. The chip credit comes off the total, since the shop sells the scrap.</p>
+  </div>
+  <figure class="exhibit" id="costbuild" style="max-width:44rem">
+    <ul class="bars" aria-label="Cost build per part">
+      <li><span class="lbl">Bar stock <span class="small">40.3%</span></span><span class="track"><span class="fill hot" style="width:100.0%"></span></span><span class="val">$13.7942</span></li>
+      <li><span class="lbl">Chip credit <span class="small">&minus;3.8%</span></span><span class="track"><span class="fill neg" style="width:9.3%"></span></span><span class="val">&minus;$1.2826</span></li>
+      <li><span class="lbl">Machining <span class="small">31.0%</span></span><span class="track"><span class="fill" style="width:76.9%"></span></span><span class="val">$10.6145</span></li>
+      <li><span class="lbl">Setup <span class="small">0.8%</span></span><span class="track"><span class="fill" style="width:1.8%"></span></span><span class="val">$0.2551</span></li>
+      <li><span class="lbl">Deburr and wash <span class="small">4.3%</span></span><span class="track"><span class="fill" style="width:10.6%"></span></span><span class="val">$1.4593</span></li>
+      <li><span class="lbl">Cutting tools <span class="small">1.6%</span></span><span class="track"><span class="fill" style="width:4.0%"></span></span><span class="val">$0.5500</span></li>
+      <li><span class="lbl">Inspection <span class="small">2.0%</span></span><span class="track"><span class="fill" style="width:5.0%"></span></span><span class="val">$0.6942</span></li>
+      <li><span class="lbl">Anodize <span class="small">3.6%</span></span><span class="track"><span class="fill" style="width:8.9%"></span></span><span class="val">$1.2275</span></li>
+      <li><span class="lbl">Packaging <span class="small">0.9%</span></span><span class="track"><span class="fill" style="width:2.2%"></span></span><span class="val">$0.3000</span></li>
+      <li><span class="lbl">Supplier SG&A <span class="small">8.1%</span></span><span class="track"><span class="fill" style="width:20.0%"></span></span><span class="val">$2.7612</span></li>
+      <li><span class="lbl">Freight to customer <span class="small">0.5%</span></span><span class="track"><span class="fill" style="width:1.2%"></span></span><span class="val">$0.1650</span></li>
+      <li><span class="lbl">Supplier profit <span class="small">10.7%</span></span><span class="track"><span class="fill" style="width:26.6%"></span></span><span class="val">$3.6646</span></li>
+      <li class="total"><span class="lbl">Should-cost price, delivered</span><span class="track"></span><span class="val">$34.203</span></li>
+    </ul>
+    <figcaption><span class="ex">Exhibit 1.</span> Cost build per part, with each line's share of the price. Manufacturing cost is $27.6121 and total delivered cost is $30.5384 before the supplier's profit.</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="s4">
+  <h2 id="s4">Against the quote</h2>
+  <div class="prose">
+    <p>The made-up quote I tested against was $38.90, so it's $4.697 a part over should-cost, or about 12% high. On 12,000 parts a year, closing half of that gap gets the price to $36.5515 and saves about $28,182 a year. Getting all the way to should-cost would be worth $56,364.</p>
+  </div>
+  <figure class="exhibit" style="max-width:44rem">
+    <ul class="bars" aria-label="Quote comparison">
+      <li><span class="lbl">Should-cost price</span><span class="track"><span class="fill" style="width:87.9%"></span></span><span class="val">$34.203</span></li>
+      <li><span class="lbl">Target, half the gap closed</span><span class="track"><span class="fill" style="width:94.0%"></span></span><span class="val">$36.5515</span></li>
+      <li><span class="lbl">Supplier quote (made up)</span><span class="track"><span class="fill hot" style="width:100%"></span></span><span class="val">$38.90</span></li>
+    </ul>
+    <figcaption><span class="ex">Exhibit 2.</span> Price per part.</figcaption>
+  </figure>
+  <div class="prose">
+    <p>The model also writes the price out as a contract formula. You agree on the conversion price once and let the metal part move with the market:</p>
+  </div>
+  <p class="formula">(LME cash + Midwest premium + $1.16/lb) x 3.715 lb + $20.41 per part</p>
+</section>
+
+<section aria-labelledby="s5">
+  <h2 id="s5">The price increase check</h2>
+  <div class="prose">
+    <p>This is the tab I'd use most. The Midwest price of aluminum (LME plus the premium) went from $2.1692 a pound in November 2025 to $2.5534 in November 2026, up about 18%.</p>
+    <p>Say a supplier puts a flat 9% on the whole part price because of that. On a made-up current price of $38.90, that's $42.401. Aluminum only justifies about 3.2%, or $1.2638 a part, because machining, anodize and margin didn't move with the metal and the chips are worth more now too. The difference is about $2.24 a part, or roughly $26,847 a year.</p>
+  </div>
+  <figure class="exhibit" style="max-width:44rem">
+    <ul class="bars" aria-label="Price increase check">
+      <li><span class="lbl">Current price, Nov 2025</span><span class="track"><span class="fill" style="width:91.7%"></span></span><span class="val">$38.90</span></li>
+      <li><span class="lbl">Justified by aluminum, about +3.2%</span><span class="track"><span class="fill" style="width:94.7%"></span></span><span class="val">$40.1638</span></li>
+      <li><span class="lbl">Supplier's ask, +9%</span><span class="track"><span class="fill hot" style="width:100%"></span></span><span class="val">$42.401</span></li>
+    </ul>
+    <figcaption><span class="ex">Exhibit 3.</span> Price per part. The overcharge is $2.2372 a part.</figcaption>
+  </figure>
+  <figure class="exhibit narrow">
+    <div class="scroll">
+    <table class="plain">
+      <thead><tr><th scope="col">Date</th><th scope="col">Midwest premium, cents/lb</th><th scope="col">LME cash, $/tonne</th></tr></thead>
+      <tbody>
+<tr><td>Nov 7, 2025</td><td>88.1</td><td>$2,840</td></tr>
+<tr><td>Dec 15, 2025</td><td>90.3</td><td></td></tr>
+<tr><td>Dec 31, 2025</td><td>91.05</td><td></td></tr>
+<tr><td>Jan 23, 2026</td><td>100.95</td><td></td></tr>
+<tr><td>Feb 3, 2026</td><td>103.95</td><td></td></tr>
+<tr><td>Late May 2026</td><td>119</td><td></td></tr>
+<tr><td>Sep 10, 2026</td><td>109.7</td><td></td></tr>
+<tr><td>Nov 4, 2026</td><td>112</td><td>$3,160</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <figcaption><span class="ex">Exhibit 4.</span> The Midwest premium over the past year, from the workbook's Sources tab.</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="s6">
+  <h2 id="s6">What moves the price</h2>
+  <div class="prose">
+    <p>The two things that move this part most are the Midwest premium and how long the part sits on the machine.</p>
+  </div>
+  <div class="tryit" id="tryit">
+    <p class="small" style="margin:0 0 .4rem">Move the premium and the cycle time. The numbers come straight from the workbook's sensitivity tab.</p>
+    <label><span>Midwest premium, $/lb</span><input type="range" id="t-a" min="0" max="6" step="1" value="4"><output id="o-a"></output></label>
+    <label><span>Cycle time per part</span><input type="range" id="t-b" min="0" max="4" step="1" value="2"><output id="o-b"></output></label>
+    <p class="readout">Should-cost: <b id="o-price"></b> a part</p>
+    <p class="vs" id="o-vs"></p>
+  </div>
+  <figure class="exhibit">
+    <div class="scroll">
+    <table class="plain" id="grid5">
+<thead><tr><th scope="col">Midwest premium, $/lb</th><th scope="col">9 min</th><th scope="col">10.5 min</th><th scope="col">11.8 min</th><th scope="col">13 min</th><th scope="col">14.5 min</th></tr></thead>
+<tbody>
+<tr><th scope="row">$0.40</th><td>$27.80</td><td>$29.47</td><td>$30.91</td><td>$32.24</td><td>$33.90</td></tr>
+<tr><th scope="row">$0.60</th><td>$28.72</td><td>$30.38</td><td>$31.82</td><td>$33.15</td><td>$34.82</td></tr>
+<tr><th scope="row">$0.80</th><td>$29.64</td><td>$31.30</td><td>$32.74</td><td>$34.07</td><td>$35.73</td></tr>
+<tr><th scope="row">$1.00</th><td>$30.55</td><td>$32.21</td><td>$33.65</td><td>$34.98</td><td>$36.65</td></tr>
+<tr><th scope="row">$1.12</th><td>$31.10</td><td>$32.76</td><td class="at">$34.20</td><td>$35.53</td><td>$37.20</td></tr>
+<tr><th scope="row">$1.20</th><td>$31.47</td><td>$33.13</td><td>$34.57</td><td>$35.90</td><td>$37.56</td></tr>
+<tr><th scope="row">$1.40</th><td>$32.38</td><td>$34.04</td><td>$35.48</td><td>$36.81</td><td>$38.48</td></tr>
+</tbody>
+    </table>
+    </div>
+    <figcaption><span class="ex">Exhibit 5.</span> Should-cost price per part by Midwest premium and cycle time. The red cell follows the sliders above, and starts at the current inputs.</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="files">
+  <h2 id="files">Workbook</h2>
+  <ul class="files">
+    <li><a href="files/should-cost/Machined_Bracket_Should_Cost_Model.xlsx">Machined_Bracket_Should_Cost_Model.xlsx</a><span>Tabs: README, Inputs, Should-Cost, Sensitivity, Aluminum &amp; Price Check, Sources</span></li>
+  </ul>
+</section>
+
+</div>
+</main>
+
+<footer class="foot">
+  <span>Caden Hill, 2026</span>
+  <ul>
+    <li><a href="mailto:cadenhill072@gmail.com">Email</a></li>
+    <li><a href="https://www.linkedin.com/in/cadenhill/">LinkedIn</a></li>
+    <li><a href="index.html">All work</a></li>
+  </ul>
+  <p class="colophon">Plain HTML, CSS and a little JavaScript. No template or framework.</p>
+</footer>
+
+</div>
+<script>
+// Price slider: reads the same grid as Exhibit 5, so the page and the workbook agree.
+(function () {
+  var rows = [0.4, 0.6, 0.8, 1, 1.12, 1.2, 1.4], cols = [9, 10.5, 11.8, 13, 14.5], vals = [[27.8, 29.47, 30.91, 32.24, 33.9], [28.72, 30.38, 31.82, 33.15, 34.82], [29.64, 31.3, 32.74, 34.07, 35.73], [30.55, 32.21, 33.65, 34.98, 36.65], [31.1, 32.76, 34.2, 35.53, 37.2], [31.47, 33.13, 34.57, 35.9, 37.56], [32.38, 34.04, 35.48, 36.81, 38.48]], quote = 38.9;
+  var A = document.getElementById('t-a'), B = document.getElementById('t-b');
+  var trs = document.querySelectorAll('#grid5 tbody tr');
+  function update() {
+    var r = +A.value, c = +B.value, v = vals[r][c];
+    document.getElementById('o-a').textContent = '$' + rows[r].toFixed(2);
+    document.getElementById('o-b').textContent = cols[c] + ' min';
+    document.getElementById('o-price').textContent = '$' + v.toFixed(2);
+    var gap = (quote - v) / quote * 100;
+    document.getElementById('o-vs').textContent = gap >= 0
+      ? 'At that price the made-up $38.90 quote is ' + gap.toFixed(1) + '% high.'
+      : 'At that price the made-up $38.90 quote is ' + (-gap).toFixed(1) + '% low.';
+    trs.forEach(function (tr, i) {
+      tr.querySelectorAll('td').forEach(function (td, j) { td.classList.toggle('at', i === r && j === c); });
+    });
+  }
+  A.addEventListener('input', update); B.addEventListener('input', update); update();
+})();
+</script>
+<script src="site.js"></script>
+</body>
+</html>

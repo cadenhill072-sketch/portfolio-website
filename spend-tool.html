@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Packaging spend tool · Caden Hill</title>
+<meta name="description" content="A reusable web tool from a summer 2026 sourcing internship that puts packaging spend, drawings and technical reports in one view. Rebuilt with invented data.">
+<link rel="stylesheet" href="style.css">
+<style>
+.fx-wrap{border:1px solid var(--rule);background:#fff;margin:1.25rem 0 .5rem;}
+.fx-bar0{display:flex;justify-content:space-between;gap:1rem;padding:.7rem 1rem;border-bottom:1px solid var(--rule);font-size:.95rem;}
+.fx-bar0 b{font-family:var(--serif);color:var(--navy);font-weight:600;}
+.fx-bar0 small{color:var(--muted);}
+.fx{display:grid;}
+@media (min-width:780px){.fx{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);}}
+.fx-list{list-style:none;margin:0;padding:.4rem;border-bottom:1px solid var(--rule);}
+@media (min-width:780px){.fx-list{border-bottom:0;border-right:1px solid var(--rule);}}
+.fx-list button{width:100%;display:grid;grid-template-columns:1fr auto;gap:.4rem .8rem;align-items:baseline;text-align:left;font:inherit;color:var(--ink);background:none;border:0;padding:.7rem .7rem .75rem;cursor:pointer;}
+.fx-list button:hover{background:var(--paper);}
+.fx-list button[aria-pressed="true"]{background:var(--paper);box-shadow:inset 3px 0 0 var(--pencil);}
+.fx-n{font-weight:500;}
+.fx-p{font-size:.85rem;color:var(--muted);}
+.fx-bar{grid-column:1/-1;height:6px;background:var(--rule);}
+.fx-bar i{display:block;height:100%;background:var(--navy);}
+.fx-list button[aria-pressed="true"] .fx-bar i{background:var(--pencil);}
+.fx-d{padding:1.1rem 1.25rem 1.4rem;}
+.fx-d h3{margin:0 0 .15rem;}
+.fx-d .st{font-size:.92rem;color:var(--muted);margin:0 0 1rem;}
+.fx-row{display:flex;flex-wrap:wrap;gap:.4rem 1.5rem;font-size:.92rem;margin:0 0 1rem;}
+.fx-row span{color:var(--muted);}
+.fx-d h4{font-family:var(--serif);color:var(--navy);font-size:1rem;font-weight:600;margin:1.1rem 0 .45rem;}
+.sup{display:grid;grid-template-columns:7rem 1fr 2.6rem;gap:.6rem;align-items:center;font-size:.92rem;margin:0 0 .4rem;}
+.sup .b{height:9px;background:var(--rule);}
+.sup .b i{display:block;height:100%;background:var(--navy);}
+.sup em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;}
+.play{display:inline-block;font-size:.85rem;font-weight:600;padding:.1rem .55rem;border:1px solid var(--navy);color:var(--navy);margin-right:.6rem;}
+.play.consolidate{background:var(--navy);color:var(--paper);}
+.play.minibid{border-color:var(--pencil);color:var(--pencil);}
+.fx-why{margin:.6rem 0 0;}
+.fx-d ul{margin:0;padding-left:1.1rem;font-size:.95rem;}
+</style>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="page">
+
+<header class="top">
+  <a class="home" href="index.html">Caden Hill</a>
+  <nav aria-label="Main">
+    <a href="index.html#work">Work</a>
+    <a href="about.html">About</a>
+    <a href="files/caden-hill-resume.pdf">Resume (PDF)</a>
+  </nav>
+</header>
+
+<main id="main">
+
+<div class="head">
+  <p class="kicker">Sourcing internship, packaging direct materials, summer 2026</p>
+  <h1>Packaging spend in one view</h1>
+  <p class="dek">Spend, drawings and technical reports for packaging items lived in separate places. I built a tool that brings them together, so sourcing and R&amp;D can look at a whole family of items at once.</p>
+  <p class="datanote">Rebuilt for this portfolio and privatized. The diagram and demo use invented families, suppliers and shares. No company data, files, screenshots, supplier names or internal system names appear on this page.</p>
+</div>
+
+<div class="body">
+
+<figure class="exhibit" style="max-width:46rem">
+  <div class="fig"><svg viewBox="0 0 640 400" role="img" aria-label="Spend data, packaging drawings and technical reports, matched by packaging spec and grouped into spec families, each with a proposed next step">
+  <g>
+    <rect x="28.5" y="40.5" width="186" height="92" rx="7" class="d-paper d-line"/>
+    <text x="44" y="64" class="d-t d-s d-h">Spend data</text>
+    <rect x="44" y="78" width="138" height="6" rx="3" class="d-ink2" opacity=".55"/>
+    <rect x="44" y="92" width="98" height="6" rx="3" class="d-ink2" opacity=".55"/>
+    <rect x="44" y="106" width="62" height="6" rx="3" class="d-ink2" opacity=".55"/>
+
+    <rect x="28.5" y="154.5" width="186" height="92" rx="7" class="d-paper d-line"/>
+    <text x="44" y="178" class="d-t d-s d-h">Packaging drawing</text>
+    <rect x="44.5" y="190.5" width="34" height="38" rx="3" fill="none" class="d-line"/>
+    <line x1="44.5" y1="197.5" x2="78.5" y2="197.5" class="d-line"/>
+    <line x1="44.5" y1="237.5" x2="78.5" y2="237.5" class="d-faint"/>
+    <line x1="44.5" y1="233" x2="44.5" y2="242" class="d-faint"/>
+    <line x1="78.5" y1="233" x2="78.5" y2="242" class="d-faint"/>
+    <rect x="94" y="194" width="92" height="5" rx="2.5" class="d-ink2" opacity=".35"/>
+    <rect x="94" y="206" width="72" height="5" rx="2.5" class="d-ink2" opacity=".35"/>
+    <rect x="94" y="218" width="84" height="5" rx="2.5" class="d-ink2" opacity=".35"/>
+
+    <rect x="28.5" y="268.5" width="186" height="92" rx="7" class="d-paper d-line"/>
+    <text x="44" y="292" class="d-t d-s d-h">Technical report</text>
+    <rect x="44" y="306" width="150" height="5" rx="2.5" class="d-ink2" opacity=".35"/>
+    <rect x="44" y="318" width="132" height="5" rx="2.5" class="d-ink2" opacity=".35"/>
+    <rect x="44" y="330" width="146" height="5" rx="2.5" class="d-ink2" opacity=".35"/>
+    <rect x="44" y="342" width="86" height="5" rx="2.5" class="d-ink2" opacity=".35"/>
+  </g>
+  <path d="M215 86 C258 86 262 200 298 200" class="flow"/>
+  <path d="M215 200 L298 200" class="flow"/>
+  <path d="M215 314 C258 314 262 200 298 200" class="flow"/>
+  <path d="M306 200 L340 200" class="flow"/>
+  <circle cx="302" cy="200" r="7" class="d-routef"/>
+  <text x="302" y="234" text-anchor="middle" class="d-t d-xs d-m">matched</text>
+  <text x="302" y="249" text-anchor="middle" class="d-t d-xs d-m">by spec</text>
+
+  <rect x="340.5" y="40.5" width="272" height="320" rx="7" class="d-paper d-line"/>
+  <text x="360" y="68" class="d-t d-s d-h">Spec families</text>
+  <text x="596" y="68" text-anchor="end" class="d-t d-xs d-m">next step</text>
+  <line x1="341" y1="82.5" x2="612" y2="82.5" class="d-rule"/>
+    <rect x="340" y="96" width="3" height="46" class="d-routef"/>
+    <text x="360" y="118" class="d-t d-s">Shrink sleeve</text>
+    <rect x="360" y="128" width="132" height="7" rx="3.5" class="d-rulef"/>
+    <rect x="360" y="128" width="132" height="7" rx="3.5" class="d-routef"/>
+    <rect x="506.5" y="106.5" width="89" height="25" rx="12.5" class="d-paper" stroke="var(--ink)" stroke-width="1"/><text x="551" y="123" text-anchor="middle" class="d-t d-xs d-h">Mini-bid</text>
+    <text x="360" y="178" class="d-t d-s">Stand-up pouch</text>
+    <rect x="360" y="188" width="132" height="7" rx="3.5" class="d-rulef"/>
+    <rect x="360" y="188" width="116" height="7" rx="3.5" class="d-ink2"/>
+    <rect x="506" y="166" width="90" height="26" rx="13" class="d-ink"/><text x="551" y="183" text-anchor="middle" class="d-t d-xs d-h d-paper-t">Consolidate</text>
+    <text x="360" y="238" class="d-t d-s">Flow-wrap film</text>
+    <rect x="360" y="248" width="132" height="7" rx="3.5" class="d-rulef"/>
+    <rect x="360" y="248" width="93" height="7" rx="3.5" class="d-ink2"/>
+    <rect x="506.5" y="226.5" width="89" height="25" rx="12.5" class="d-paper" stroke="var(--ink)" stroke-width="1"/><text x="551" y="243" text-anchor="middle" class="d-t d-xs d-h">Negotiate</text>
+    <text x="360" y="298" class="d-t d-s">Lidding film</text>
+    <rect x="360" y="308" width="132" height="7" rx="3.5" class="d-rulef"/>
+    <rect x="360" y="308" width="83" height="7" rx="3.5" class="d-ink2"/>
+    <rect x="506" y="286" width="90" height="26" rx="13" class="d-ink"/><text x="551" y="303" text-anchor="middle" class="d-t d-xs d-h d-paper-t">Consolidate</text>
+</svg></div>
+  <figcaption><span class="ex">Exhibit 1.</span> Three sources, matched by packaging spec and grouped into families, each with a proposed next step. Illustration, not a screenshot.</figcaption>
+</figure>
+
+<section aria-labelledby="s1">
+  <h2 id="s1">The problem</h2>
+  <div class="prose">
+    <p>Tail spend is the long list of items that each cost too little to get much attention on their own. In packaging, the useful questions about those items are simple to ask and slow to answer. Who makes this, does anyone else make the same thing, and is there a drawing on file?</p>
+    <p>Answering them takes three kinds of information that sit in different places: what was spent, what the packaging drawing shows, and what the technical report says about the structure. Without them side by side, it's hard to see that two items from two suppliers are really the same film.</p>
+  </div>
+</section>
+
+<section aria-labelledby="s2">
+  <h2 id="s2">What I built</h2>
+  <div class="prose">
+    <p>I built a reusable web tool with enterprise generative AI that pulls the three together. Items are matched by their packaging structure and grouped into families, so each family shows its total spend, which suppliers make it, and whether a drawing exists.</p>
+    <p>It isn't tied to one category. The same approach runs on any packaging category, which was the point of building it as a tool instead of a one-off analysis.</p>
+  </div>
+</section>
+
+<section aria-labelledby="s3">
+  <h2 id="s3">From a family to a decision</h2>
+  <div class="prose">
+    <p>Each family gets a proposed next step, along with how easy it would be, how confident the evidence is, the risks, and the questions R&amp;D would need to answer before anyone acts.</p>
+    <p>If several suppliers make the same structure, the move is to consolidate, so one award builds volume. If a qualified alternative already exists, a mini-bid tests price with a small competitive event. If there's no realistic alternative yet, the lever is a negotiation with the current supplier.</p>
+  </div>
+</section>
+
+<section aria-labelledby="s4">
+  <h2 id="s4">Try it</h2>
+  <div class="prose">
+    <p>This is an example category with invented families, suppliers and shares. Pick a family to see what the tool shows for it.</p>
+  </div>
+  <div class="fx-wrap">
+    <div class="fx-bar0"><b>Spec families</b><small>Invented data</small></div>
+    <div class="fx"><ol class="fx-list" id="fx-list" aria-label="Spec families"></ol><div class="fx-d" id="fx-detail" aria-live="polite"></div></div>
+  </div>
+  <p class="small">Shares are percentages of an invented category total, not real spend.</p>
+</section>
+
+<section aria-labelledby="s5">
+  <h2 id="s5">Result</h2>
+  <div class="prose">
+    <p>The analysis found over $1M in supplier consolidation and margin savings opportunities across film and flexible packaging tail spend, and I presented them to category leadership. Since the tool works the same way on any category, the next one starts from a working method instead of a blank spreadsheet.</p>
+  </div>
+</section>
+
+</div>
+</main>
+
+<script>
+(function(){
+  var F = [
+    {n:"Lidding film", st:"PET / PE, peelable, printed", share:15, drawing:"Yes",
+     sup:[["Converter C",40],["Converter E",35],["Converter F",25]],
+     play:"Consolidate", cls:"consolidate", ease:"Moderate", conf:"Medium",
+     why:"Three converters run the same structure. One award builds volume with a supplier that already makes it.",
+     q:["Do seal temperatures differ by packing line?","Which converter has capacity for the combined volume?"]},
+    {n:"Stand-up pouch", st:"PET / foil / PE laminate, printed", share:21, drawing:"Yes",
+     sup:[["Converter B",55],["Converter C",45]],
+     play:"Consolidate", cls:"consolidate", ease:"Moderate", conf:"High",
+     why:"Both suppliers make the same laminate, so the larger one can absorb the smaller one's items without a new qualification.",
+     q:["Are zipper and tear-notch specs identical across items?","Would a consolidated award need line trials?"]},
+    {n:"Shrink sleeve", st:"PETG, printed", share:24, drawing:"Yes",
+     sup:[["Converter A",70],["Converter D",30]],
+     play:"Mini-bid", cls:"minibid", ease:"Moderate", conf:"Medium",
+     why:"A second qualified converter already runs this structure, so a small competitive bid tests price without changing the spec.",
+     q:["Does the shrink curve tie the sleeve to one converter?","Can artwork changes be timed with the bid?"]},
+    {n:"Flow-wrap film", st:"OPP, printed", share:17, drawing:"No",
+     sup:[["Converter A",100]],
+     play:"Negotiate", cls:"", ease:"Easy", conf:"Medium",
+     why:"Single source with no drawing on file. Document the spec first. Until then the move is a conversation with the current supplier.",
+     q:["Who owns the print plates?","Is any other converter qualified on this structure?"]},
+    {n:"Liner bag", st:"LDPE, unprinted", share:13, drawing:"No",
+     sup:[["Converter F",100]],
+     play:"Negotiate", cls:"", ease:"Easy", conf:"Low",
+     why:"Commodity structure and modest spend. Not worth qualifying a new supplier. Price is the lever.",
+     q:["Can sizes be standardized toward the highest-volume item?","Should this sit in a different spend category?"]},
+    {n:"Pressure-sensitive label", st:"BOPP, printed", share:10, drawing:"Yes",
+     sup:[["Converter D",80],["Converter E",20]],
+     play:"Mini-bid", cls:"minibid", ease:"Moderate", conf:"Medium",
+     why:"Labels belong with label converters, not film suppliers. Two are already qualified, which is enough for a bid.",
+     q:["Does the adhesive transfer between converters?","Is print registration brand-critical on any item?"]}
+  ];
+  F.sort(function(a,b){return b.share-a.share});
+  var list = document.getElementById('fx-list'), d = document.getElementById('fx-detail');
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  F.forEach(function(f,i){
+    var li=document.createElement('li');
+    li.innerHTML='<button type="button" aria-pressed="false" aria-controls="fx-detail">'+
+      '<span class="fx-n">'+esc(f.n)+'</span><span class="fx-p">'+f.share+'%</span>'+
+      '<span class="fx-bar" aria-hidden="true"><i style="width:'+(f.share/24*100)+'%"></i></span></button>';
+    li.firstChild.addEventListener('click',function(){show(i)});
+    list.appendChild(li);
+  });
+  function show(i){
+    var f=F[i];
+    [].forEach.call(list.querySelectorAll('button'),function(b,j){b.setAttribute('aria-pressed',String(i===j))});
+    d.innerHTML='<h3>'+esc(f.n)+'</h3><p class="st">'+esc(f.st)+'</p>'+
+      '<div class="fx-row"><div><span>Share of category</span> '+f.share+'%</div><div><span>Drawing on file</span> '+f.drawing+'</div></div>'+
+      '<h4>Who makes it</h4>'+f.sup.map(function(s){return '<div class="sup"><span>'+esc(s[0])+'</span><span class="b"><i style="width:'+s[1]+'%"></i></span><em>'+s[1]+'%</em></div>'}).join('')+
+      '<h4>Proposed next step</h4><span class="play '+f.cls+'">'+f.play+'</span><span class="fx-p">Ease: '+f.ease+'. Confidence: '+f.conf+'.</span>'+
+      '<p class="fx-why">'+esc(f.why)+'</p>'+
+      '<h4>Questions for R&amp;D</h4><ul>'+f.q.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>';
+  }
+  show(0);
+})();
+</script>
+
+<footer class="foot">
+  <span>Caden Hill, 2026</span>
+  <ul>
+    <li><a href="mailto:cadenhill072@gmail.com">Email</a></li>
+    <li><a href="https://www.linkedin.com/in/cadenhill/">LinkedIn</a></li>
+    <li><a href="index.html">All work</a></li>
+  </ul>
+  <p class="colophon">Plain HTML, CSS and a little JavaScript. No template or framework.</p>
+</footer>
+
+</div>
+<script src="site.js"></script>
+</body>
+</html>
